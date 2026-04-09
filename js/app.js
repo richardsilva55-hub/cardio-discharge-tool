@@ -309,3 +309,19 @@ window._recBuilder = { buildRecommendation };
 
 window.addEventListener('hashchange', route);
 route();
+
+function injectSignature(container) {
+  const footer = document.createElement('footer');
+  footer.className = 'app-signature';
+  footer.innerHTML = `
+    <span class="signature-text">Designed & Developed by</span>
+    <span class="signature-credit">RSC, MD</span>
+    <p style="font-size: 0.75rem; color: #94a3b8; margin-top: 8px;">
+      Board-Certified Cardiac Electrophysiologist
+    </p>
+  `;
+  container.appendChild(footer);
+}
+
+// In showResult and showConditionSelector, call:
+// injectSignature(document.getElementById('app'));
