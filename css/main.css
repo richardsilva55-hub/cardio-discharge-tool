@@ -283,3 +283,35 @@ body {
   color: #004a99;
   font-size: 1.1rem;
 }
+
+:root {
+  --primary-blue: #004a99;
+  --clinical-bg: #f8fafc;
+}
+
+body { background-color: var(--clinical-bg); }
+
+.app-signature {
+  margin-top: 3rem;
+  padding: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  text-align: center;
+}
+
+.signature-credit {
+  display: block;
+  font-weight: 700;
+  color: var(--primary-blue);
+  font-size: 1.1rem;
+}
+
+.guideline-badge {
+  background: #eef3ff;
+  color: var(--primary-blue);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
