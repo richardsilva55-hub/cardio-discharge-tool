@@ -1,0 +1,141 @@
+{
+  "id": "dcm",
+  "name": "Dilated Cardiomyopathy",
+  "subtypes": [
+    {
+      "id": "dcm",
+      "name": "Dilated Cardiomyopathy",
+      "description": "Non-ischemic and other dilated cardiomyopathies",
+      "sections": [
+        {
+          "id": "etiology",
+          "title": "Etiology & Workup",
+          "questions": [
+            { "id": "cause", "label": "Etiology", "type": "select", "options": [
+              { "value": "idiopathic", "label": "Idiopathic" },
+              { "value": "familial", "label": "Familial / Genetic" },
+              { "value": "toxic", "label": "Toxic (alcohol, chemotherapy)" },
+              { "value": "peripartum", "label": "Peripartum" },
+              { "value": "tachycardia", "label": "Tachycardia-mediated" },
+              { "value": "myocarditis", "label": "Post-myocarditis" },
+              { "value": "other", "label": "Other" }
+            ]},
+            { "id": "etiology_workup_complete", "label": "Etiology workup complete?", "type": "boolean" },
+            { "id": "cause_addressed", "label": "Underlying cause addressed (if reversible)?", "type": "select", "options": [
+              { "value": "na", "label": "N/A — not reversible" },
+              { "value": "yes", "label": "Yes — cause treated/removed" },
+              { "value": "no", "label": "No — ongoing exposure/cause" }
+            ]}
+          ]
+        },
+        {
+          "id": "severity",
+          "title": "Disease Severity",
+          "questions": [
+            { "id": "ef_current", "label": "Current LVEF (%)", "type": "number", "min": 5, "max": 80 },
+            { "id": "ef_trend", "label": "EF trend", "type": "select", "options": [
+              { "value": "improving", "label": "Improving" },
+              { "value": "stable", "label": "Stable" },
+              { "value": "declining", "label": "Declining" }
+            ]},
+            { "id": "nyha_class", "label": "NYHA Class", "type": "select", "options": [
+              { "value": "I", "label": "Class I" }, { "value": "II", "label": "Class II" },
+              { "value": "III", "label": "Class III" }, { "value": "IV", "label": "Class IV" }
+            ]},
+            { "id": "hospitalization_recent", "label": "HF hospitalization in last 12 months?", "type": "boolean" }
+          ]
+        },
+        {
+          "id": "gdmt",
+          "title": "Guideline-Directed Medical Therapy",
+          "questions": [
+            { "id": "on_raasi", "label": "On ACEi/ARB/ARNI?", "type": "select", "options": [
+              { "value": "target", "label": "At target dose" },
+              { "value": "uptitrating", "label": "Uptitrating" },
+              { "value": "none", "label": "Not on" },
+              { "value": "contraindicated", "label": "Contraindicated" }
+            ]},
+            { "id": "on_bb", "label": "On evidence-based beta-blocker?", "type": "select", "options": [
+              { "value": "target", "label": "At target dose" },
+              { "value": "uptitrating", "label": "Uptitrating" },
+              { "value": "none", "label": "Not on" },
+              { "value": "contraindicated", "label": "Contraindicated" }
+            ]},
+            { "id": "on_mra", "label": "On MRA?", "type": "boolean" },
+            { "id": "on_sglt2i", "label": "On SGLT2 inhibitor?", "type": "boolean" }
+          ]
+        },
+        {
+          "id": "devices_genetics",
+          "title": "Devices & Family Screening",
+          "questions": [
+            { "id": "icd_status", "label": "ICD status", "type": "select", "options": [
+              { "value": "has_icd", "label": "ICD/CRT-D in place" },
+              { "value": "not_indicated", "label": "Not indicated (EF recovered)" },
+              { "value": "pending", "label": "Pending evaluation" },
+              { "value": "declined", "label": "Declined" }
+            ]},
+            { "id": "genetic_testing", "label": "Genetic testing", "type": "select", "options": [
+              { "value": "done_positive", "label": "Done — pathogenic variant found" },
+              { "value": "done_negative", "label": "Done — negative" },
+              { "value": "not_done", "label": "Not done" },
+              { "value": "not_indicated", "label": "Not indicated" }
+            ]},
+            { "id": "family_screening", "label": "First-degree relatives screened?", "type": "boolean", "condition": { "field": "cause", "in": ["familial", "idiopathic"] } }
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            { "field": "ef_current", "gte": 40, "reason": "LVEF recovered to ≥ 40%" },
+            { "field": "nyha_class", "in": ["I", "II"], "reason": "NYHA Class I–II" },
+            { "field": "hospitalization_recent", "equals": false, "reason": "No HF hospitalization in last 12 months" },
+            { "field": "ef_trend", "in": ["improving", "stable"], "reason": "EF stable or improving" },
+            { "field": "etiology_workup_complete", "equals": true, "reason": "Etiology workup complete" },
+            { "or": [
+              { "field": "cause_addressed", "in": ["na", "yes"] }
+            ], "reason": "Underlying cause addressed or not reversible" },
+            { "or": [
+              { "field": "on_raasi", "in": ["target", "contraindicated"] }
+            ], "reason": "RAASi optimized" },
+            { "or": [
+              { "field": "on_bb", "in": ["target", "contraindicated"] }
+            ], "reason": "Beta-blocker optimized" },
+            { "or": [
+              { "field": "icd_status", "in": ["has_icd", "not_indicated", "declined"] }
+            ], "reason": "ICD indication addressed" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "ef_current", "lt": 25, "reason": "Severely reduced EF < 25%" },
+            { "field": "ef_trend", "equals": "declining", "reason": "Declining EF" },
+            { "field": "nyha_class", "in": ["III", "IV"], "reason": "NYHA III–IV" },
+            { "field": "etiology_workup_complete", "equals": false, "reason": "Etiology workup incomplete" },
+            { "field": "cause_addressed", "equals": "no", "reason": "Reversible cause not yet addressed" },
+            { "field": "icd_status", "equals": "pending", "reason": "ICD evaluation pending" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "nyha_class", "in": ["III", "IV"] }, "months": 1 },
+            { "if": { "field": "ef_current", "lt": 25 }, "months": 2 },
+            { "if": { "field": "ef_trend", "equals": "declining" }, "months": 2 },
+            { "if": { "or": [{ "field": "on_raasi", "equals": "uptitrating" }, { "field": "on_bb", "equals": "uptitrating" }] }, "months": 3 },
+            { "if": { "field": "hospitalization_recent", "equals": true }, "months": 3 },
+            { "default": 6 }
+          ]
+        },
+        "pcp_precautions": [
+          { "text": "Continue all HF medications. Do not discontinue without cardiology consultation." },
+          { "text": "Daily weights, sodium restriction, return for weight gain > 2 kg/week, worsening dyspnea, or edema." },
+          { "text": "Repeat echo in 12 months if EF was previously reduced." },
+          { "condition": { "field": "cause", "equals": "toxic" }, "text": "Toxic cardiomyopathy — absolute alcohol avoidance. Avoid further cardiotoxic exposures." },
+          { "condition": { "field": "cause", "equals": "peripartum" }, "text": "Peripartum CM — discuss contraception and future pregnancy risk with cardiology before planning pregnancy." },
+          { "condition": { "field": "genetic_testing", "equals": "done_positive" }, "text": "Genetic variant identified — family members should be referred for genetic counseling and cascade screening." }
+        ]
+      }
+    }
+  ]
+}

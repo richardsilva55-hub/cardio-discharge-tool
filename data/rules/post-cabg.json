@@ -1,0 +1,163 @@
+{
+  "id": "post-cabg",
+  "name": "Post-CABG",
+  "subtypes": [
+    {
+      "id": "post-cabg",
+      "name": "Post-CABG",
+      "description": "Post-coronary artery bypass graft surgery",
+      "sections": [
+        {
+          "id": "surgery",
+          "title": "Surgery Details",
+          "questions": [
+            {
+              "id": "months_since_cabg",
+              "label": "Months since CABG surgery",
+              "type": "number",
+              "min": 0,
+              "max": 600
+            },
+            {
+              "id": "num_grafts",
+              "label": "Number of grafts",
+              "type": "select",
+              "options": [
+                { "value": "1", "label": "1 graft" },
+                { "value": "2", "label": "2 grafts" },
+                { "value": "3", "label": "3 grafts" },
+                { "value": "4plus", "label": "4+ grafts" }
+              ]
+            },
+            {
+              "id": "lima_used",
+              "label": "LIMA graft to LAD used?",
+              "type": "boolean"
+            }
+          ]
+        },
+        {
+          "id": "recovery",
+          "title": "Recovery & Symptoms",
+          "questions": [
+            {
+              "id": "wounds_healed",
+              "label": "Surgical wounds fully healed?",
+              "type": "boolean"
+            },
+            {
+              "id": "rehab_status",
+              "label": "Cardiac rehabilitation status",
+              "type": "select",
+              "options": [
+                { "value": "completed", "label": "Completed" },
+                { "value": "in_progress", "label": "In progress" },
+                { "value": "not_started", "label": "Not started" },
+                { "value": "declined", "label": "Declined" }
+              ]
+            },
+            {
+              "id": "symptoms",
+              "label": "Current symptoms",
+              "type": "select",
+              "options": [
+                { "value": "asymptomatic", "label": "Asymptomatic" },
+                { "value": "mild", "label": "Mild — occasional chest discomfort" },
+                { "value": "recurrent_angina", "label": "Recurrent angina" },
+                { "value": "dyspnea", "label": "Dyspnea on exertion" }
+              ]
+            },
+            {
+              "id": "wound_complications",
+              "label": "Any wound complications (infection, dehiscence)?",
+              "type": "boolean"
+            }
+          ]
+        },
+        {
+          "id": "medications",
+          "title": "Medications",
+          "questions": [
+            {
+              "id": "on_aspirin",
+              "label": "On aspirin?",
+              "type": "boolean"
+            },
+            {
+              "id": "on_statin",
+              "label": "On high-intensity statin?",
+              "type": "boolean"
+            },
+            {
+              "id": "on_bb",
+              "label": "On beta-blocker?",
+              "type": "boolean"
+            }
+          ]
+        },
+        {
+          "id": "imaging",
+          "title": "Imaging & Function",
+          "questions": [
+            {
+              "id": "ef_current",
+              "label": "Current LVEF (%)",
+              "type": "number",
+              "min": 10,
+              "max": 80
+            },
+            {
+              "id": "ef_trend",
+              "label": "EF trend since surgery",
+              "type": "select",
+              "options": [
+                { "value": "improved", "label": "Improved" },
+                { "value": "stable", "label": "Stable" },
+                { "value": "declined", "label": "Declined" }
+              ]
+            }
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            { "field": "months_since_cabg", "gte": 12, "reason": "> 12 months post-CABG" },
+            { "field": "symptoms", "equals": "asymptomatic", "reason": "Asymptomatic" },
+            { "field": "wounds_healed", "equals": true, "reason": "Surgical wounds fully healed" },
+            { "or": [{ "field": "rehab_status", "in": ["completed", "declined"] }], "reason": "Cardiac rehab completed or addressed" },
+            { "field": "on_aspirin", "equals": true, "reason": "On aspirin" },
+            { "field": "on_statin", "equals": true, "reason": "On high-intensity statin" },
+            { "field": "ef_current", "gte": 40, "reason": "LVEF ≥ 40%" },
+            { "field": "wound_complications", "equals": false, "reason": "No wound complications" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "months_since_cabg", "lt": 6, "reason": "Less than 6 months post-CABG — still in early recovery" },
+            { "field": "symptoms", "equals": "recurrent_angina", "reason": "Recurrent angina may indicate graft failure" },
+            { "field": "wound_complications", "equals": true, "reason": "Active wound complications" },
+            { "field": "ef_trend", "equals": "declined", "reason": "Declining EF post-CABG" },
+            { "field": "ef_current", "lt": 35, "reason": "LVEF < 35%" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "months_since_cabg", "lt": 6 }, "months": 2 },
+            { "if": { "field": "months_since_cabg", "lt": 12 }, "months": 3 },
+            { "if": { "field": "symptoms", "not_equals": "asymptomatic" }, "months": 3 },
+            { "if": { "field": "rehab_status", "equals": "in_progress" }, "months": 3 },
+            { "default": 12 }
+          ]
+        },
+        "pcp_precautions": [
+          { "text": "Lifelong aspirin and high-intensity statin. Do not discontinue without cardiology consultation." },
+          { "text": "Aggressive risk factor management: BP < 130/80, LDL < 70, diabetes control, smoking cessation." },
+          { "text": "Annual lipid panel and fasting glucose." },
+          { "text": "Return to cardiology for recurrent chest pain, new dyspnea, or signs of heart failure." },
+          { "condition": { "field": "ef_current", "lt": 50 }, "text": "LVEF below normal — consider repeat echo in 12 months and HF medication optimization." }
+        ]
+      }
+    }
+  ]
+}

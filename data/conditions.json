@@ -1,0 +1,88 @@
+{
+  "conditions": [
+    {
+      "id": "heart-failure",
+      "name": "Heart Failure",
+      "shortDesc": "HFrEF, HFpEF, advanced HF",
+      "rulesFile": "heart-failure.json"
+    },
+    {
+      "id": "cad-pci",
+      "name": "Stable CAD / Post-PCI",
+      "shortDesc": "Coronary artery disease, stent follow-up",
+      "rulesFile": "cad-pci.json"
+    },
+    {
+      "id": "post-cabg",
+      "name": "Post-CABG",
+      "shortDesc": "Post-coronary bypass surgery",
+      "rulesFile": "post-cabg.json"
+    },
+    {
+      "id": "valvular",
+      "name": "Valvular Heart Disease",
+      "shortDesc": "AS, MR, AR, MS, prosthetic valves",
+      "rulesFile": "valvular.json"
+    },
+    {
+      "id": "afib-flutter",
+      "name": "AFib / Flutter",
+      "shortDesc": "Atrial fibrillation and atrial flutter",
+      "rulesFile": "afib-flutter.json"
+    },
+    {
+      "id": "other-arrhythmias",
+      "name": "Other Arrhythmias",
+      "shortDesc": "SVT, VT, bradycardia, devices",
+      "rulesFile": "other-arrhythmias.json"
+    },
+    {
+      "id": "hypertension",
+      "name": "Resistant Hypertension",
+      "shortDesc": "Complex or resistant HTN",
+      "rulesFile": "hypertension.json"
+    },
+    {
+      "id": "hcm",
+      "name": "Hypertrophic CM",
+      "shortDesc": "HCM, HOCM, screening",
+      "rulesFile": "hcm.json"
+    },
+    {
+      "id": "dcm",
+      "name": "Dilated CM",
+      "shortDesc": "Non-ischemic and ischemic DCM",
+      "rulesFile": "dcm.json"
+    },
+    {
+      "id": "pulmonary-htn",
+      "name": "Pulmonary HTN",
+      "shortDesc": "PAH, PH groups 1-5",
+      "rulesFile": "pulmonary-htn.json"
+    },
+    {
+      "id": "adult-congenital",
+      "name": "Adult Congenital",
+      "shortDesc": "ACHD, repaired and unrepaired",
+      "rulesFile": "adult-congenital.json"
+    },
+    {
+      "id": "pericardial",
+      "name": "Pericardial Disease",
+      "shortDesc": "Pericarditis, effusion, constriction",
+      "rulesFile": "pericardial.json"
+    },
+    {
+      "id": "syncope",
+      "name": "Syncope",
+      "shortDesc": "Cardiac and vasovagal syncope",
+      "rulesFile": "syncope.json"
+    },
+    {
+      "id": "aortic-disease",
+      "name": "Aortic Disease",
+      "shortDesc": "Aneurysm, dissection, post-repair",
+      "rulesFile": "aortic-disease.json"
+    }
+  ]
+}

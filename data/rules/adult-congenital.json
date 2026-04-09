@@ -1,0 +1,150 @@
+{
+  "id": "adult-congenital",
+  "name": "Adult Congenital Heart Disease",
+  "subtypes": [
+    {
+      "id": "simple-lesion",
+      "name": "Simple Lesion",
+      "description": "Repaired ASD, small VSD, repaired CoA, bicuspid AV (without significant disease)",
+      "sections": [
+        {
+          "id": "lesion",
+          "title": "Lesion Details",
+          "questions": [
+            { "id": "lesion_type", "label": "Lesion type", "type": "select", "options": [
+              { "value": "asd_repaired", "label": "ASD — repaired" },
+              { "value": "asd_closed", "label": "ASD — device closure" },
+              { "value": "small_vsd", "label": "Small VSD (restrictive, no hemodynamic significance)" },
+              { "value": "coa_repaired", "label": "Coarctation — repaired" },
+              { "value": "bav", "label": "Bicuspid aortic valve (no significant stenosis/regurgitation)" },
+              { "value": "pda_closed", "label": "PDA — ligated/closed" },
+              { "value": "other_simple", "label": "Other simple lesion" }
+            ]},
+            { "id": "repair_status", "label": "Repair status", "type": "select", "options": [
+              { "value": "repaired_no_residual", "label": "Repaired — no significant residual" },
+              { "value": "repaired_mild_residual", "label": "Repaired — mild residual findings" },
+              { "value": "unrepaired_insignificant", "label": "Unrepaired — hemodynamically insignificant" }
+            ]}
+          ]
+        },
+        {
+          "id": "stability",
+          "title": "Clinical Stability",
+          "questions": [
+            { "id": "has_symptoms", "label": "Any cardiac symptoms?", "type": "boolean" },
+            { "id": "imaging_stable", "label": "Imaging stable (no chamber enlargement, no new findings)?", "type": "boolean" },
+            { "id": "arrhythmias", "label": "Any arrhythmias?", "type": "boolean" },
+            { "id": "rv_rv_normal", "label": "RV and LV function normal?", "type": "boolean" }
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            { "or": [{ "field": "repair_status", "in": ["repaired_no_residual", "repaired_mild_residual", "unrepaired_insignificant"] }], "reason": "Repaired with no/mild residual or hemodynamically insignificant" },
+            { "field": "has_symptoms", "equals": false, "reason": "Asymptomatic" },
+            { "field": "imaging_stable", "equals": true, "reason": "Stable imaging" },
+            { "field": "arrhythmias", "equals": false, "reason": "No arrhythmias" },
+            { "field": "rv_rv_normal", "equals": true, "reason": "Normal biventricular function" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "has_symptoms", "equals": true, "reason": "New symptoms" },
+            { "field": "imaging_stable", "equals": false, "reason": "Imaging showing new or progressive findings" },
+            { "field": "arrhythmias", "equals": true, "reason": "Arrhythmias — common late complication of CHD" },
+            { "field": "rv_rv_normal", "equals": false, "reason": "Ventricular dysfunction" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "arrhythmias", "equals": true }, "months": 3 },
+            { "if": { "field": "imaging_stable", "equals": false }, "months": 6 },
+            { "default": 12 }
+          ]
+        },
+        "pcp_precautions": [
+          { "text": "Endocarditis prophylaxis for dental procedures if: prosthetic material used, cyanotic lesion, or within 6 months of repair." },
+          { "text": "Periodic imaging recommended (every 3–5 years for most simple lesions)." },
+          { "condition": { "field": "lesion_type", "equals": "coa_repaired" }, "text": "Repaired coarctation: lifelong BP monitoring. Assess for re-coarctation if new HTN develops. Periodic aortic imaging." },
+          { "condition": { "field": "lesion_type", "equals": "bav" }, "text": "Bicuspid aortic valve: periodic echo to monitor for progressive stenosis, regurgitation, or aortopathy. Annual if aortic dilation present." },
+          { "text": "Pre-pregnancy counseling recommended for women of childbearing age with any CHD." }
+        ]
+      }
+    },
+    {
+      "id": "moderate-complex-lesion",
+      "name": "Moderate–Complex Lesion",
+      "description": "TOF, TGA, Fontan, Ebstein, etc. — generally requires lifelong cardiology",
+      "sections": [
+        {
+          "id": "lesion",
+          "title": "Lesion Details",
+          "questions": [
+            { "id": "lesion_type", "label": "Lesion type", "type": "select", "options": [
+              { "value": "tof", "label": "Tetralogy of Fallot" },
+              { "value": "tga", "label": "Transposition of the great arteries" },
+              { "value": "fontan", "label": "Fontan circulation (single ventricle)" },
+              { "value": "ebstein", "label": "Ebstein anomaly" },
+              { "value": "ccavc", "label": "Complete AV canal defect" },
+              { "value": "other_complex", "label": "Other moderate/complex" }
+            ]},
+            { "id": "functional_class", "label": "NYHA Functional Class", "type": "select", "options": [
+              { "value": "I", "label": "Class I" }, { "value": "II", "label": "Class II" },
+              { "value": "III", "label": "Class III" }, { "value": "IV", "label": "Class IV" }
+            ]}
+          ]
+        },
+        {
+          "id": "complications",
+          "title": "Current Status",
+          "questions": [
+            { "id": "has_complications", "label": "Active complications?", "type": "boolean" },
+            { "id": "arrhythmias", "label": "Arrhythmias present?", "type": "boolean" },
+            { "id": "ventricular_function", "label": "Ventricular function", "type": "select", "options": [
+              { "value": "normal", "label": "Normal" },
+              { "value": "mildly_reduced", "label": "Mildly reduced" },
+              { "value": "moderately_reduced", "label": "Moderately reduced" },
+              { "value": "severely_reduced", "label": "Severely reduced" }
+            ]},
+            { "id": "achd_center_access", "label": "Has access to ACHD-certified center?", "type": "boolean" }
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            { "field": "has_complications", "equals": false, "reason": "No active complications" },
+            { "field": "arrhythmias", "equals": false, "reason": "No arrhythmias" },
+            { "field": "ventricular_function", "equals": "normal", "reason": "Normal ventricular function" },
+            { "field": "functional_class", "equals": "I", "reason": "NYHA Class I" },
+            { "field": "lesion_type", "equals": "never_dischargeable", "reason": "Moderate-complex ACHD generally requires lifelong specialist follow-up" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "has_complications", "equals": true, "reason": "Active complications" },
+            { "field": "arrhythmias", "equals": true, "reason": "Arrhythmias" },
+            { "field": "ventricular_function", "in": ["moderately_reduced", "severely_reduced"], "reason": "Reduced ventricular function" },
+            { "field": "functional_class", "in": ["III", "IV"], "reason": "NYHA III–IV" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "functional_class", "in": ["III", "IV"] }, "months": 2 },
+            { "if": { "field": "ventricular_function", "in": ["moderately_reduced", "severely_reduced"] }, "months": 3 },
+            { "if": { "field": "has_complications", "equals": true }, "months": 3 },
+            { "default": 6 }
+          ]
+        },
+        "pcp_precautions": [
+          { "text": "MODERATE-COMPLEX ACHD REQUIRES LIFELONG SPECIALIST FOLLOW-UP. Do not discharge from cardiology." },
+          { "text": "Ideally followed at an ACHD-accredited center. All management decisions should involve ACHD specialist." },
+          { "text": "Endocarditis prophylaxis required for most moderate-complex lesions." },
+          { "text": "Pre-pregnancy counseling MANDATORY — some lesions carry high maternal mortality. Effective contraception should be discussed." },
+          { "text": "Non-cardiac surgery requires ACHD specialist input for anesthesia planning." }
+        ]
+      }
+    }
+  ]
+}

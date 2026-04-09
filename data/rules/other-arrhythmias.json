@@ -1,0 +1,211 @@
+{
+  "id": "other-arrhythmias",
+  "name": "Other Arrhythmias",
+  "subtypes": [
+    {
+      "id": "svt",
+      "name": "SVT",
+      "description": "Supraventricular tachycardia (AVNRT, AVRT, AT)",
+      "sections": [
+        {
+          "id": "diagnosis",
+          "title": "Diagnosis & Treatment",
+          "questions": [
+            { "id": "svt_type", "label": "SVT type", "type": "select", "options": [
+              { "value": "avnrt", "label": "AVNRT" },
+              { "value": "avrt", "label": "AVRT / WPW" },
+              { "value": "at", "label": "Atrial tachycardia" },
+              { "value": "unspecified", "label": "SVT — type unspecified" }
+            ]},
+            { "id": "treatment", "label": "Treatment approach", "type": "select", "options": [
+              { "value": "ablation_done", "label": "Ablation performed" },
+              { "value": "ablation_planned", "label": "Ablation planned" },
+              { "value": "medical", "label": "Medical management" },
+              { "value": "observation", "label": "Observation only" }
+            ]},
+            { "id": "months_since_ablation", "label": "Months since ablation", "type": "number", "min": 0, "max": 240, "condition": { "field": "treatment", "equals": "ablation_done" } }
+          ]
+        },
+        {
+          "id": "stability",
+          "title": "Clinical Stability",
+          "questions": [
+            { "id": "recurrence", "label": "Any recurrence after treatment?", "type": "boolean" },
+            { "id": "symptoms_controlled", "label": "Symptoms well-controlled?", "type": "boolean" }
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            { "or": [
+              { "field": "treatment", "equals": "ablation_done" },
+              { "all": [{ "field": "treatment", "equals": "medical" }, { "field": "symptoms_controlled", "equals": true }] }
+            ], "reason": "Treated with successful ablation or well-controlled on medication" },
+            { "field": "recurrence", "equals": false, "reason": "No recurrence after treatment" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "treatment", "equals": "ablation_planned", "reason": "Ablation still planned" },
+            { "field": "recurrence", "equals": true, "reason": "Recurrence after treatment" },
+            { "field": "symptoms_controlled", "equals": false, "reason": "Symptoms not well-controlled" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "treatment", "equals": "ablation_done", "and": { "field": "months_since_ablation", "lt": 3 } }, "months": 2 },
+            { "if": { "field": "recurrence", "equals": true }, "months": 3 },
+            { "default": 12 }
+          ]
+        },
+        "pcp_precautions": [
+          { "condition": { "field": "treatment", "equals": "ablation_done" }, "text": "Post-ablation: SVT recurrence is possible but uncommon. Return for palpitations lasting > 30 seconds, presyncope, or syncope." },
+          { "condition": { "field": "treatment", "equals": "medical" }, "text": "On rate/rhythm control medication. Monitor heart rate and symptoms. PCP can manage medication adjustments for minor issues." },
+          { "text": "SVT is generally not life-threatening. ER evaluation for sustained episodes not responsive to vagal maneuvers." }
+        ]
+      }
+    },
+    {
+      "id": "ventricular-arrhythmia",
+      "name": "Ventricular Arrhythmia",
+      "description": "PVCs, NSVT, VT",
+      "sections": [
+        {
+          "id": "diagnosis",
+          "title": "Diagnosis",
+          "questions": [
+            { "id": "va_type", "label": "Arrhythmia type", "type": "select", "options": [
+              { "value": "pvcs", "label": "PVCs" },
+              { "value": "nsvt", "label": "Non-sustained VT" },
+              { "value": "sustained_vt", "label": "Sustained VT" }
+            ]},
+            { "id": "etiology", "label": "Underlying etiology", "type": "select", "options": [
+              { "value": "idiopathic", "label": "Idiopathic / structurally normal heart" },
+              { "value": "ischemic", "label": "Ischemic cardiomyopathy" },
+              { "value": "non_ischemic", "label": "Non-ischemic cardiomyopathy" },
+              { "value": "other", "label": "Other (ARVC, channelopathy, etc.)" }
+            ]},
+            { "id": "pvc_burden", "label": "PVC burden (% if known)", "type": "number", "min": 0, "max": 50, "condition": { "field": "va_type", "equals": "pvcs" } }
+          ]
+        },
+        {
+          "id": "treatment",
+          "title": "Treatment & Function",
+          "questions": [
+            { "id": "has_icd", "label": "ICD in place?", "type": "boolean" },
+            { "id": "icd_shocks", "label": "Any ICD shocks in last 6 months?", "type": "boolean", "condition": { "field": "has_icd", "equals": true } },
+            { "id": "va_treatment", "label": "Treatment", "type": "select", "options": [
+              { "value": "ablation", "label": "Ablation performed" },
+              { "value": "medication", "label": "Antiarrhythmic medication" },
+              { "value": "icd_only", "label": "ICD — no other treatment" },
+              { "value": "observation", "label": "Observation" }
+            ]},
+            { "id": "ef_current", "label": "LVEF (%)", "type": "number", "min": 10, "max": 80 },
+            { "id": "recurrence", "label": "Any recurrence after treatment?", "type": "boolean" }
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            { "field": "etiology", "equals": "idiopathic", "reason": "Idiopathic — structurally normal heart" },
+            { "field": "ef_current", "gte": 50, "reason": "Normal LVEF" },
+            { "field": "recurrence", "equals": false, "reason": "No recurrence after treatment" },
+            { "or": [
+              { "field": "va_type", "equals": "pvcs" },
+              { "all": [{ "field": "va_type", "equals": "nsvt" }, { "field": "ef_current", "gte": 50 }] }
+            ], "reason": "PVCs or NSVT with normal heart" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "va_type", "equals": "sustained_vt", "reason": "History of sustained VT requires close monitoring" },
+            { "field": "icd_shocks", "equals": true, "reason": "Recent ICD shocks" },
+            { "field": "ef_current", "lt": 35, "reason": "Reduced LVEF < 35%" },
+            { "field": "etiology", "in": ["ischemic", "non_ischemic", "other"], "reason": "Structural heart disease with ventricular arrhythmia" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "icd_shocks", "equals": true }, "months": 1 },
+            { "if": { "field": "va_type", "equals": "sustained_vt" }, "months": 3 },
+            { "if": { "field": "ef_current", "lt": 40 }, "months": 3 },
+            { "default": 12 }
+          ]
+        },
+        "pcp_precautions": [
+          { "condition": { "field": "has_icd", "equals": true }, "text": "ICD in place — annual device checks required. Urgent evaluation for ICD shocks, syncope, or device alerts." },
+          { "condition": { "field": "va_type", "equals": "pvcs" }, "text": "PVCs: generally benign if normal EF. Return if symptoms worsen or palpitations become more frequent." },
+          { "text": "Avoid QT-prolonging medications. Check drug interactions before prescribing new medications." }
+        ]
+      }
+    },
+    {
+      "id": "bradycardia-device",
+      "name": "Bradycardia / Pacemaker",
+      "description": "Bradyarrhythmia and pacemaker management",
+      "sections": [
+        {
+          "id": "device",
+          "title": "Device Details",
+          "questions": [
+            { "id": "device_type", "label": "Device type", "type": "select", "options": [
+              { "value": "single_ppm", "label": "Single-chamber pacemaker" },
+              { "value": "dual_ppm", "label": "Dual-chamber pacemaker" },
+              { "value": "crt_p", "label": "CRT-P (biventricular pacer)" },
+              { "value": "leadless", "label": "Leadless pacemaker" }
+            ]},
+            { "id": "device_functioning", "label": "Device functioning normally?", "type": "boolean" },
+            { "id": "battery_life", "label": "Estimated battery life", "type": "select", "options": [
+              { "value": "gt5yr", "label": "> 5 years" },
+              { "value": "2_5yr", "label": "2–5 years" },
+              { "value": "lt2yr", "label": "< 2 years" },
+              { "value": "eri", "label": "At ERI / near end of life" }
+            ]},
+            { "id": "remote_monitoring", "label": "Remote monitoring established?", "type": "boolean" }
+          ]
+        },
+        {
+          "id": "symptoms",
+          "title": "Symptoms",
+          "questions": [
+            { "id": "has_symptoms", "label": "Any symptoms (syncope, presyncope, fatigue)?", "type": "boolean" },
+            { "id": "pacing_dependent", "label": "Pacing-dependent?", "type": "boolean" }
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            { "field": "device_functioning", "equals": true, "reason": "Device functioning normally" },
+            { "field": "battery_life", "in": ["gt5yr", "2_5yr"], "reason": "Adequate battery life (> 2 years)" },
+            { "field": "has_symptoms", "equals": false, "reason": "Asymptomatic" },
+            { "field": "remote_monitoring", "equals": true, "reason": "Remote monitoring established" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "device_functioning", "equals": false, "reason": "Device malfunction" },
+            { "field": "battery_life", "in": ["lt2yr", "eri"], "reason": "Battery nearing end of life — generator change planning needed" },
+            { "field": "has_symptoms", "equals": true, "reason": "Ongoing symptoms despite pacing" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "battery_life", "equals": "eri" }, "months": 1 },
+            { "if": { "field": "battery_life", "equals": "lt2yr" }, "months": 3 },
+            { "if": { "field": "has_symptoms", "equals": true }, "months": 3 },
+            { "default": 12 }
+          ]
+        },
+        "pcp_precautions": [
+          { "text": "Remote monitoring handles routine device checks. Annual in-person device interrogation still recommended." },
+          { "text": "Return urgently for syncope, presyncope, prolonged palpitations, or device alerts." },
+          { "text": "MRI safety: verify device compatibility before ordering any MRI." },
+          { "condition": { "field": "pacing_dependent", "equals": true }, "text": "Patient is pacing-dependent. Any device malfunction is immediately symptomatic — treat as urgent." }
+        ]
+      }
+    }
+  ]
+}

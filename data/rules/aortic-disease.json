@@ -1,0 +1,164 @@
+{
+  "id": "aortic-disease",
+  "name": "Aortic Disease",
+  "subtypes": [
+    {
+      "id": "aortic-aneurysm",
+      "name": "Aortic Aneurysm",
+      "description": "Thoracic or abdominal aortic aneurysm surveillance",
+      "sections": [
+        {
+          "id": "aneurysm",
+          "title": "Aneurysm Details",
+          "questions": [
+            { "id": "location", "label": "Location", "type": "select", "options": [
+              { "value": "ascending", "label": "Ascending aorta" },
+              { "value": "arch", "label": "Aortic arch" },
+              { "value": "descending", "label": "Descending thoracic" },
+              { "value": "abdominal", "label": "Abdominal (infrarenal)" },
+              { "value": "thoracoabdominal", "label": "Thoracoabdominal" }
+            ]},
+            { "id": "max_diameter", "label": "Maximum diameter (cm)", "type": "number", "min": 2, "max": 10, "step": 0.1 },
+            { "id": "growth_rate", "label": "Growth rate (cm/year)", "type": "select", "options": [
+              { "value": "stable", "label": "Stable (< 0.3 cm/year)" },
+              { "value": "slow", "label": "Slow (0.3–0.5 cm/year)" },
+              { "value": "rapid", "label": "Rapid (> 0.5 cm/year)" }
+            ]}
+          ]
+        },
+        {
+          "id": "risk_factors",
+          "title": "Risk Factors",
+          "questions": [
+            { "id": "connective_tissue", "label": "Connective tissue disorder?", "type": "select", "options": [
+              { "value": "none", "label": "None" },
+              { "value": "marfan", "label": "Marfan syndrome" },
+              { "value": "loeys_dietz", "label": "Loeys-Dietz syndrome" },
+              { "value": "ehlers_danlos", "label": "Vascular Ehlers-Danlos" },
+              { "value": "other", "label": "Other connective tissue disorder" }
+            ]},
+            { "id": "bicuspid_av", "label": "Bicuspid aortic valve?", "type": "boolean" },
+            { "id": "family_hx_aneurysm", "label": "Family history of aortic aneurysm/dissection?", "type": "boolean" }
+          ]
+        },
+        {
+          "id": "management",
+          "title": "Management",
+          "questions": [
+            { "id": "bp_controlled", "label": "Blood pressure well-controlled (< 130/80)?", "type": "boolean" },
+            { "id": "imaging_interval_set", "label": "Imaging surveillance interval established?", "type": "boolean" },
+            { "id": "has_symptoms", "label": "Any symptoms (chest/back pain, hoarseness)?", "type": "boolean" }
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            { "field": "growth_rate", "in": ["stable", "slow"], "reason": "Growth rate not rapid" },
+            { "field": "has_symptoms", "equals": false, "reason": "Asymptomatic" },
+            { "field": "bp_controlled", "equals": true, "reason": "Blood pressure controlled" },
+            { "field": "imaging_interval_set", "equals": true, "reason": "Imaging surveillance plan established" },
+            { "field": "connective_tissue", "equals": "none", "reason": "No connective tissue disorder (CTD requires lifelong specialist follow-up)" },
+            { "or": [
+              { "all": [{ "field": "location", "in": ["ascending", "arch"] }, { "field": "max_diameter", "lt": 4.5 }] },
+              { "all": [{ "field": "location", "in": ["descending", "abdominal", "thoracoabdominal"] }, { "field": "max_diameter", "lt": 5.0 }] }
+            ], "reason": "Aneurysm size well below intervention threshold" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "growth_rate", "equals": "rapid", "reason": "Rapid growth (> 0.5 cm/year) — approaching surgical criteria" },
+            { "field": "has_symptoms", "equals": true, "reason": "Symptomatic — urgent evaluation needed" },
+            { "field": "connective_tissue", "not_equals": "none", "reason": "Connective tissue disorder — lower intervention thresholds apply" },
+            { "all": [{ "field": "location", "in": ["ascending", "arch"] }, { "field": "max_diameter", "gte": 5.0 }], "reason": "Ascending/arch aneurysm ≥ 5.0 cm — approaching intervention threshold" },
+            { "all": [{ "field": "location", "in": ["descending", "abdominal", "thoracoabdominal"] }, { "field": "max_diameter", "gte": 5.5 }], "reason": "Descending/abdominal aneurysm ≥ 5.5 cm — approaching intervention threshold" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "growth_rate", "equals": "rapid" }, "months": 3 },
+            { "if": { "field": "has_symptoms", "equals": true }, "months": 1 },
+            { "if": { "field": "max_diameter", "gte": 4.5 }, "months": 6 },
+            { "if": { "field": "connective_tissue", "not_equals": "none" }, "months": 6 },
+            { "default": 12 }
+          ]
+        },
+        "pcp_precautions": [
+          { "text": "STRICT blood pressure control: target < 130/80. Beta-blocker preferred first-line agent." },
+          { "text": "Avoid heavy lifting (> 50 lbs), straining, and isometric exercise." },
+          { "text": "Imaging surveillance per established interval. Do NOT skip scheduled imaging." },
+          { "text": "EMERGENCY: Seek immediate care for sudden severe chest or back pain (tearing quality), syncope, or signs of malperfusion." },
+          { "condition": { "field": "family_hx_aneurysm", "equals": true }, "text": "Family history positive — first-degree relatives should be screened with aortic imaging." },
+          { "condition": { "field": "bicuspid_av", "equals": true }, "text": "Bicuspid aortic valve aortopathy — monitor aorta even if valve function is normal. First-degree relatives should be screened." }
+        ]
+      }
+    },
+    {
+      "id": "post-dissection-repair",
+      "name": "Post-Dissection / Repair",
+      "description": "Post-aortic dissection or aortic repair — generally requires lifelong surveillance",
+      "sections": [
+        {
+          "id": "history",
+          "title": "Dissection / Repair Details",
+          "questions": [
+            { "id": "dissection_type", "label": "Dissection type", "type": "select", "options": [
+              { "value": "type_a_repaired", "label": "Type A — surgically repaired" },
+              { "value": "type_b_medically", "label": "Type B — medically managed" },
+              { "value": "type_b_tevar", "label": "Type B — TEVAR performed" },
+              { "value": "elective_repair", "label": "Elective aortic repair (no dissection)" }
+            ]},
+            { "id": "months_since_event", "label": "Months since dissection/repair", "type": "number", "min": 0, "max": 600 },
+            { "id": "residual_dissection", "label": "Residual dissection flap or false lumen?", "type": "boolean" }
+          ]
+        },
+        {
+          "id": "stability",
+          "title": "Current Status",
+          "questions": [
+            { "id": "aorta_stable", "label": "Aortic dimensions stable on serial imaging?", "type": "boolean" },
+            { "id": "bp_controlled", "label": "Blood pressure well-controlled?", "type": "boolean" },
+            { "id": "has_symptoms", "label": "Any symptoms?", "type": "boolean" },
+            { "id": "imaging_interval_set", "label": "Imaging surveillance interval established?", "type": "boolean" }
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            { "field": "dissection_type", "equals": "elective_repair", "reason": "Elective repair (no dissection) — lower ongoing risk" },
+            { "field": "aorta_stable", "equals": true, "reason": "Aortic dimensions stable" },
+            { "field": "has_symptoms", "equals": false, "reason": "Asymptomatic" },
+            { "field": "bp_controlled", "equals": true, "reason": "BP well-controlled" },
+            { "field": "months_since_event", "gte": 24, "reason": "≥ 2 years post-repair and stable" },
+            { "field": "imaging_interval_set", "equals": true, "reason": "Imaging surveillance plan in place" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "residual_dissection", "equals": true, "reason": "Residual dissection flap — risk of expansion or malperfusion" },
+            { "field": "aorta_stable", "equals": false, "reason": "Aortic dimensions not stable" },
+            { "field": "has_symptoms", "equals": true, "reason": "Symptomatic" },
+            { "field": "bp_controlled", "equals": false, "reason": "Blood pressure not controlled" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "months_since_event", "lt": 12 }, "months": 3 },
+            { "if": { "field": "aorta_stable", "equals": false }, "months": 3 },
+            { "if": { "field": "residual_dissection", "equals": true }, "months": 6 },
+            { "default": 6 }
+          ]
+        },
+        "pcp_precautions": [
+          { "text": "POST-DISSECTION PATIENTS GENERALLY REQUIRE LIFELONG CARDIOLOGY/VASCULAR SURGERY SURVEILLANCE." },
+          { "text": "STRICT blood pressure control: target < 120/80. Beta-blocker mandatory unless contraindicated." },
+          { "text": "Lifelong imaging surveillance (CTA or MRA) per established interval — DO NOT skip." },
+          { "text": "EMERGENCY: Immediate evaluation for any sudden chest, back, or abdominal pain. Aortic dissection can recur." },
+          { "text": "Avoid all heavy lifting, straining, and high-intensity exercise. No stimulant drugs (cocaine, amphetamines)." },
+          { "condition": { "field": "residual_dissection", "equals": true }, "text": "Residual dissection flap present — monitor for false lumen expansion or end-organ malperfusion." }
+        ]
+      }
+    }
+  ]
+}

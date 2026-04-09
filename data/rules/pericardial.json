@@ -1,0 +1,199 @@
+{
+  "id": "pericardial",
+  "name": "Pericardial Disease",
+  "subtypes": [
+    {
+      "id": "acute-pericarditis",
+      "name": "Acute / Recurrent Pericarditis",
+      "description": "Pericarditis episodes and management",
+      "sections": [
+        {
+          "id": "episode",
+          "title": "Episode Details",
+          "questions": [
+            { "id": "episode_type", "label": "Episode type", "type": "select", "options": [
+              { "value": "first", "label": "First episode" },
+              { "value": "recurrent", "label": "Recurrent pericarditis" }
+            ]},
+            { "id": "num_recurrences", "label": "Number of recurrences", "type": "number", "min": 0, "max": 20, "condition": { "field": "episode_type", "equals": "recurrent" } }
+          ]
+        },
+        {
+          "id": "treatment",
+          "title": "Treatment & Resolution",
+          "questions": [
+            { "id": "current_treatment", "label": "Current anti-inflammatory therapy", "type": "select", "options": [
+              { "value": "none", "label": "Off all therapy" },
+              { "value": "colchicine_only", "label": "Colchicine only" },
+              { "value": "nsaid_colchicine", "label": "NSAID + colchicine" },
+              { "value": "steroids", "label": "On corticosteroids" },
+              { "value": "anakinra", "label": "On anakinra/rilonacept" }
+            ]},
+            { "id": "symptoms_resolved", "label": "Symptoms fully resolved?", "type": "boolean" },
+            { "id": "months_off_therapy", "label": "Months off anti-inflammatory therapy (0 if still on)", "type": "number", "min": 0, "max": 60 },
+            { "id": "crp_normal", "label": "CRP normalized?", "type": "boolean" }
+          ]
+        },
+        {
+          "id": "imaging",
+          "title": "Imaging",
+          "questions": [
+            { "id": "effusion_status", "label": "Pericardial effusion", "type": "select", "options": [
+              { "value": "none", "label": "None" },
+              { "value": "trivial", "label": "Trivial / physiologic" },
+              { "value": "small", "label": "Small" },
+              { "value": "moderate", "label": "Moderate" },
+              { "value": "large", "label": "Large" }
+            ]},
+            { "id": "constriction_features", "label": "Any features of constriction?", "type": "boolean" }
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            { "field": "symptoms_resolved", "equals": true, "reason": "Symptoms fully resolved" },
+            { "field": "months_off_therapy", "gte": 3, "reason": "Off anti-inflammatory therapy ≥ 3 months without recurrence" },
+            { "field": "crp_normal", "equals": true, "reason": "CRP normalized" },
+            { "field": "effusion_status", "in": ["none", "trivial"], "reason": "No significant pericardial effusion" },
+            { "field": "constriction_features", "equals": false, "reason": "No features of constriction" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "current_treatment", "equals": "steroids", "reason": "On corticosteroids — needs taper plan and monitoring" },
+            { "field": "current_treatment", "equals": "anakinra", "reason": "On biologic therapy — requires specialized monitoring" },
+            { "field": "effusion_status", "in": ["moderate", "large"], "reason": "Moderate-large pericardial effusion" },
+            { "field": "constriction_features", "equals": true, "reason": "Features of constriction — needs further evaluation" },
+            { "all": [{ "field": "episode_type", "equals": "recurrent" }, { "field": "num_recurrences", "gte": 3 }], "reason": "Multiple recurrences (≥ 3) — may need advanced therapy" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "current_treatment", "in": ["steroids", "anakinra"] }, "months": 1 },
+            { "if": { "field": "effusion_status", "in": ["moderate", "large"] }, "months": 1 },
+            { "if": { "field": "current_treatment", "in": ["nsaid_colchicine", "colchicine_only"] }, "months": 3 },
+            { "if": { "field": "episode_type", "equals": "recurrent" }, "months": 3 },
+            { "default": 6 }
+          ]
+        },
+        "pcp_precautions": [
+          { "text": "Monitor for recurrence: chest pain worse with inspiration/lying flat, fever, elevated CRP." },
+          { "text": "If on colchicine, complete the full prescribed course. Do not stop early." },
+          { "condition": { "field": "episode_type", "equals": "recurrent" }, "text": "Recurrent pericarditis: higher risk of further recurrence. Low threshold to restart colchicine and refer back." },
+          { "text": "Return to cardiology for recurrent symptoms, new pericardial effusion, or signs of constriction (edema, ascites, JVD)." }
+        ]
+      }
+    },
+    {
+      "id": "pericardial-effusion",
+      "name": "Pericardial Effusion",
+      "description": "Isolated pericardial effusion without pericarditis",
+      "sections": [
+        {
+          "id": "effusion",
+          "title": "Effusion Details",
+          "questions": [
+            { "id": "effusion_size", "label": "Effusion size", "type": "select", "options": [
+              { "value": "small", "label": "Small (< 10mm)" },
+              { "value": "moderate", "label": "Moderate (10–20mm)" },
+              { "value": "large", "label": "Large (> 20mm)" }
+            ]},
+            { "id": "hemodynamic_significance", "label": "Hemodynamically significant (tamponade physiology)?", "type": "boolean" },
+            { "id": "etiology_identified", "label": "Etiology identified?", "type": "boolean" },
+            { "id": "effusion_trend", "label": "Trend on serial imaging", "type": "select", "options": [
+              { "value": "stable", "label": "Stable" },
+              { "value": "decreasing", "label": "Decreasing" },
+              { "value": "increasing", "label": "Increasing" }
+            ]}
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            { "field": "effusion_size", "equals": "small", "reason": "Small effusion" },
+            { "field": "hemodynamic_significance", "equals": false, "reason": "No hemodynamic significance" },
+            { "field": "etiology_identified", "equals": true, "reason": "Etiology identified" },
+            { "field": "effusion_trend", "in": ["stable", "decreasing"], "reason": "Stable or decreasing" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "effusion_size", "equals": "large", "reason": "Large pericardial effusion" },
+            { "field": "hemodynamic_significance", "equals": true, "reason": "Hemodynamically significant — may need pericardiocentesis" },
+            { "field": "effusion_trend", "equals": "increasing", "reason": "Increasing effusion" },
+            { "field": "etiology_identified", "equals": false, "reason": "Unknown etiology — needs further workup" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "hemodynamic_significance", "equals": true }, "months": 0.5 },
+            { "if": { "field": "effusion_size", "equals": "large" }, "months": 1 },
+            { "if": { "field": "effusion_size", "equals": "moderate" }, "months": 3 },
+            { "if": { "field": "effusion_trend", "equals": "increasing" }, "months": 1 },
+            { "default": 6 }
+          ]
+        },
+        "pcp_precautions": [
+          { "text": "Follow-up echo to monitor effusion size." },
+          { "text": "Return urgently for: worsening dyspnea, lightheadedness, hypotension, Beck's triad (JVD, muffled heart sounds, hypotension)." }
+        ]
+      }
+    },
+    {
+      "id": "constrictive",
+      "name": "Constrictive Pericarditis",
+      "description": "Constrictive pericarditis — generally requires specialist management",
+      "sections": [
+        {
+          "id": "diagnosis",
+          "title": "Diagnosis & Status",
+          "questions": [
+            { "id": "diagnosis_confirmed", "label": "Diagnosis confirmed (echo, CT, MRI, cath)?", "type": "boolean" },
+            { "id": "etiology", "label": "Etiology", "type": "select", "options": [
+              { "value": "idiopathic", "label": "Idiopathic / post-viral" },
+              { "value": "post_surgical", "label": "Post-cardiac surgery" },
+              { "value": "post_radiation", "label": "Post-radiation" },
+              { "value": "tb", "label": "Tuberculous" },
+              { "value": "other", "label": "Other" }
+            ]},
+            { "id": "surgical_candidate", "label": "Surgical candidate for pericardiectomy?", "type": "select", "options": [
+              { "value": "yes_planned", "label": "Yes — pericardiectomy planned" },
+              { "value": "yes_not_planned", "label": "Yes — but not yet planned" },
+              { "value": "no", "label": "Not a surgical candidate" },
+              { "value": "done", "label": "Pericardiectomy already performed" }
+            ]},
+            { "id": "symptoms_controlled", "label": "Symptoms controlled with medical therapy?", "type": "boolean" }
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            { "field": "surgical_candidate", "equals": "done", "reason": "Pericardiectomy performed" },
+            { "field": "symptoms_controlled", "equals": true, "reason": "Symptoms well-controlled" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "surgical_candidate", "equals": "yes_planned", "reason": "Pericardiectomy planned" },
+            { "field": "symptoms_controlled", "equals": false, "reason": "Symptoms not controlled" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "surgical_candidate", "equals": "yes_planned" }, "months": 1 },
+            { "if": { "field": "symptoms_controlled", "equals": false }, "months": 2 },
+            { "default": 6 }
+          ]
+        },
+        "pcp_precautions": [
+          { "text": "Constrictive pericarditis is a complex condition. Ongoing cardiology involvement is usually necessary unless post-pericardiectomy and stable." },
+          { "text": "Manage volume status with diuretics. Low-sodium diet." },
+          { "text": "Return for worsening edema, ascites, dyspnea, or new atrial fibrillation." }
+        ]
+      }
+    }
+  ]
+}

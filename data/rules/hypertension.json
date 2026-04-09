@@ -1,0 +1,82 @@
+{
+  "id": "hypertension",
+  "name": "Resistant / Complex Hypertension",
+  "subtypes": [
+    {
+      "id": "resistant-htn",
+      "name": "Resistant / Complex HTN",
+      "description": "Hypertension requiring cardiology management",
+      "sections": [
+        {
+          "id": "bp_status",
+          "title": "Blood Pressure Status",
+          "questions": [
+            { "id": "bp_at_goal", "label": "Blood pressure at goal (< 130/80)?", "type": "boolean" },
+            { "id": "months_at_goal", "label": "Months BP has been at goal", "type": "number", "min": 0, "max": 120, "condition": { "field": "bp_at_goal", "equals": true } },
+            { "id": "num_medications", "label": "Number of antihypertensive medications", "type": "number", "min": 0, "max": 10 },
+            { "id": "regimen_stable", "label": "Regimen stable (no changes in ≥ 3 months)?", "type": "boolean" },
+            { "id": "tolerating_meds", "label": "Tolerating all medications?", "type": "boolean" }
+          ]
+        },
+        {
+          "id": "workup",
+          "title": "Secondary Causes",
+          "questions": [
+            { "id": "secondary_excluded", "label": "Secondary causes of HTN excluded?", "type": "select", "options": [
+              { "value": "yes", "label": "Yes — workup complete and negative" },
+              { "value": "found_treated", "label": "Secondary cause found and treated" },
+              { "value": "pending", "label": "Workup pending / incomplete" },
+              { "value": "not_done", "label": "Not done" }
+            ]}
+          ]
+        },
+        {
+          "id": "complications",
+          "title": "End-Organ Damage",
+          "questions": [
+            { "id": "has_lvh", "label": "LVH on echo/ECG?", "type": "boolean" },
+            { "id": "lvh_stable", "label": "LVH stable or improving?", "type": "boolean", "condition": { "field": "has_lvh", "equals": true } },
+            { "id": "has_ckd", "label": "Chronic kidney disease?", "type": "boolean" },
+            { "id": "ckd_stable", "label": "CKD stable (no progression)?", "type": "boolean", "condition": { "field": "has_ckd", "equals": true } },
+            { "id": "has_retinopathy", "label": "Hypertensive retinopathy?", "type": "boolean" }
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            { "field": "bp_at_goal", "equals": true, "reason": "BP at goal" },
+            { "field": "months_at_goal", "gte": 6, "reason": "BP at goal for ≥ 6 months" },
+            { "field": "regimen_stable", "equals": true, "reason": "Stable medication regimen" },
+            { "field": "tolerating_meds", "equals": true, "reason": "Tolerating all medications" },
+            { "field": "secondary_excluded", "in": ["yes", "found_treated"], "reason": "Secondary causes excluded or treated" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "bp_at_goal", "equals": false, "reason": "BP not at goal" },
+            { "all": [{ "field": "num_medications", "gte": 4 }, { "field": "bp_at_goal", "equals": false }], "reason": "Truly resistant HTN (≥ 4 agents, uncontrolled)" },
+            { "field": "secondary_excluded", "in": ["pending", "not_done"], "reason": "Secondary cause workup incomplete" },
+            { "field": "tolerating_meds", "equals": false, "reason": "Not tolerating medications — needs adjustment" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "bp_at_goal", "equals": false }, "months": 2 },
+            { "if": { "field": "secondary_excluded", "equals": "pending" }, "months": 3 },
+            { "if": { "field": "regimen_stable", "equals": false }, "months": 3 },
+            { "default": 12 }
+          ]
+        },
+        "pcp_precautions": [
+          { "text": "Continue all antihypertensive medications. Do not discontinue without discussion." },
+          { "text": "Home BP monitoring recommended: check AM and PM, bring log to PCP visits." },
+          { "text": "Annual labs: BMP (K, Cr), lipid panel, urinalysis for microalbuminuria." },
+          { "text": "Return to cardiology if BP consistently > 140/90 despite adherence, or if new symptoms (headache, visual changes, chest pain, dyspnea)." },
+          { "condition": { "field": "has_ckd", "equals": true }, "text": "CKD present — monitor renal function every 3–6 months. Avoid NSAIDs." },
+          { "condition": { "field": "has_lvh", "equals": true }, "text": "LVH present — repeat echo in 1–2 years to assess regression with BP control." }
+        ]
+      }
+    }
+  ]
+}

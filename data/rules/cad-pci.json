@@ -1,0 +1,502 @@
+{
+  "id": "cad-pci",
+  "name": "Stable CAD / Post-PCI",
+  "subtypes": [
+    {
+      "id": "stable-cad",
+      "name": "Stable Coronary Artery Disease / Post-PCI",
+      "description": "Decision support for discharge of patients with stable coronary artery disease, including those who have undergone percutaneous coronary intervention (PCI). Evaluates symptom burden, medication optimization, risk factor control, and time since last intervention.",
+      "sections": [
+        {
+          "id": "severity",
+          "name": "Disease Severity & Intervention History",
+          "questions": [
+            {
+              "id": "symptom_status",
+              "text": "Current symptom status",
+              "type": "select",
+              "options": [
+                { "value": "asymptomatic", "label": "Asymptomatic" },
+                { "value": "ccs_1", "label": "CCS Class I - Angina with strenuous exertion only" },
+                { "value": "ccs_2", "label": "CCS Class II - Slight limitation of ordinary activity" },
+                { "value": "ccs_3", "label": "CCS Class III - Marked limitation of ordinary activity" },
+                { "value": "ccs_4", "label": "CCS Class IV - Angina at rest" }
+              ]
+            },
+            {
+              "id": "stress_test_result",
+              "text": "Most recent stress test result",
+              "type": "select",
+              "options": [
+                { "value": "normal", "label": "Normal / No ischemia" },
+                { "value": "mildly_abnormal", "label": "Mildly abnormal - Small area of ischemia" },
+                { "value": "moderately_abnormal", "label": "Moderately abnormal - Moderate ischemia" },
+                { "value": "severely_abnormal", "label": "Severely abnormal - Large area of ischemia" },
+                { "value": "not_performed", "label": "Not performed / Not available" }
+              ]
+            },
+            {
+              "id": "number_of_vessels",
+              "text": "Number of vessels with significant disease (>70% stenosis)",
+              "type": "select",
+              "options": [
+                { "value": "0", "label": "0 - No significant stenosis" },
+                { "value": "1", "label": "1-vessel disease" },
+                { "value": "2", "label": "2-vessel disease" },
+                { "value": "3", "label": "3-vessel disease" },
+                { "value": "lm", "label": "Left main disease" }
+              ]
+            },
+            {
+              "id": "last_pci_months",
+              "text": "Months since last PCI",
+              "type": "number",
+              "min": 0,
+              "max": 360,
+              "step": 1
+            },
+            {
+              "id": "stent_type",
+              "text": "Type of stent placed at last PCI",
+              "type": "select",
+              "options": [
+                { "value": "des", "label": "Drug-eluting stent (DES)" },
+                { "value": "bms", "label": "Bare-metal stent (BMS)" },
+                { "value": "balloon_only", "label": "Balloon angioplasty only (no stent)" },
+                { "value": "none", "label": "No PCI performed" }
+              ]
+            },
+            {
+              "id": "most_recent_acs",
+              "text": "Months since most recent acute coronary syndrome (ACS) event",
+              "type": "number",
+              "min": 0,
+              "max": 600,
+              "step": 1
+            },
+            {
+              "id": "planned_intervention",
+              "text": "Is there a planned coronary intervention or revascularization?",
+              "type": "boolean"
+            }
+          ]
+        },
+        {
+          "id": "stability",
+          "name": "Clinical Stability",
+          "questions": [
+            {
+              "id": "stable_angina",
+              "text": "Does the patient have stable angina pattern (unchanged frequency, duration, and triggers for >2 months)?",
+              "type": "boolean"
+            },
+            {
+              "id": "chest_pain_free_months",
+              "text": "Number of months chest-pain free",
+              "type": "number",
+              "min": 0,
+              "max": 120,
+              "step": 1
+            },
+            {
+              "id": "medication_adherence",
+              "text": "Medication adherence status",
+              "type": "select",
+              "options": [
+                { "value": "fully_adherent", "label": "Fully adherent - Takes all medications as prescribed" },
+                { "value": "mostly_adherent", "label": "Mostly adherent - Occasional missed doses" },
+                { "value": "poorly_adherent", "label": "Poorly adherent - Frequently misses doses" },
+                { "value": "non_adherent", "label": "Non-adherent - Not taking medications" }
+              ]
+            },
+            {
+              "id": "recent_hospitalization",
+              "text": "Any cardiac-related hospitalization in the past 6 months?",
+              "type": "boolean"
+            },
+            {
+              "id": "current_ef",
+              "text": "Most recent left ventricular ejection fraction (%)",
+              "type": "number",
+              "min": 5,
+              "max": 80,
+              "step": 1
+            },
+            {
+              "id": "ef_trend",
+              "text": "EF trend compared to prior measurement",
+              "type": "select",
+              "options": [
+                { "value": "stable", "label": "Stable (within 5%)" },
+                { "value": "improving", "label": "Improving" },
+                { "value": "declining", "label": "Declining" },
+                { "value": "no_prior", "label": "No prior measurement available" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "medications",
+          "name": "Medication Management",
+          "questions": [
+            {
+              "id": "statin_status",
+              "text": "Statin therapy status",
+              "type": "select",
+              "options": [
+                { "value": "high_intensity", "label": "High-intensity statin (atorvastatin 40-80mg or rosuvastatin 20-40mg)" },
+                { "value": "moderate_intensity", "label": "Moderate-intensity statin" },
+                { "value": "low_intensity", "label": "Low-intensity statin" },
+                { "value": "intolerant", "label": "Statin intolerant - on alternative lipid therapy" },
+                { "value": "none", "label": "Not on statin therapy" }
+              ]
+            },
+            {
+              "id": "antiplatelet_status",
+              "text": "Antiplatelet / DAPT status",
+              "type": "select",
+              "options": [
+                { "value": "dapt_active", "label": "On DAPT (aspirin + P2Y12 inhibitor) - within required duration" },
+                { "value": "dapt_completed", "label": "DAPT duration completed - now on single antiplatelet" },
+                { "value": "single_antiplatelet", "label": "Single antiplatelet only (no prior DAPT requirement)" },
+                { "value": "none", "label": "Not on antiplatelet therapy" }
+              ]
+            },
+            {
+              "id": "dapt_months_remaining",
+              "text": "Months of DAPT remaining (0 if completed or not applicable)",
+              "type": "number",
+              "min": 0,
+              "max": 36,
+              "step": 1,
+              "condition": { "field": "antiplatelet_status", "equals": "dapt_active" }
+            },
+            {
+              "id": "beta_blocker",
+              "text": "Is the patient on a beta-blocker?",
+              "type": "boolean"
+            },
+            {
+              "id": "acei_arb",
+              "text": "ACE inhibitor or ARB status",
+              "type": "select",
+              "options": [
+                { "value": "on_acei", "label": "On ACE inhibitor" },
+                { "value": "on_arb", "label": "On ARB" },
+                { "value": "on_arni", "label": "On ARNI (sacubitril/valsartan)" },
+                { "value": "not_indicated", "label": "Not indicated" },
+                { "value": "intolerant", "label": "Intolerant / Contraindicated" },
+                { "value": "none", "label": "Not on ACEi/ARB (but indicated)" }
+              ]
+            },
+            {
+              "id": "antianginal_therapy",
+              "text": "Additional antianginal therapy",
+              "type": "select",
+              "options": [
+                { "value": "none_needed", "label": "None needed - symptom free" },
+                { "value": "one_agent", "label": "On one antianginal agent" },
+                { "value": "two_agents", "label": "On two antianginal agents" },
+                { "value": "three_plus", "label": "On three or more antianginal agents" }
+              ]
+            },
+            {
+              "id": "medication_uptitration_needed",
+              "text": "Is active medication uptitration in progress?",
+              "type": "boolean"
+            }
+          ]
+        },
+        {
+          "id": "risk_factors",
+          "name": "Cardiovascular Risk Factors",
+          "questions": [
+            {
+              "id": "diabetes",
+              "text": "Diabetes mellitus status",
+              "type": "select",
+              "options": [
+                { "value": "none", "label": "No diabetes" },
+                { "value": "controlled", "label": "Diabetes - well controlled (HbA1c <7%)" },
+                { "value": "moderately_controlled", "label": "Diabetes - moderately controlled (HbA1c 7-9%)" },
+                { "value": "uncontrolled", "label": "Diabetes - poorly controlled (HbA1c >9%)" }
+              ]
+            },
+            {
+              "id": "smoking_status",
+              "text": "Smoking status",
+              "type": "select",
+              "options": [
+                { "value": "never", "label": "Never smoker" },
+                { "value": "former", "label": "Former smoker (quit >6 months)" },
+                { "value": "recent_quit", "label": "Recently quit (<6 months)" },
+                { "value": "current", "label": "Current smoker" }
+              ]
+            },
+            {
+              "id": "bp_controlled",
+              "text": "Is blood pressure at goal (<130/80 mmHg)?",
+              "type": "boolean"
+            },
+            {
+              "id": "lipids_at_goal",
+              "text": "Are lipids at goal (LDL <70 mg/dL for very high risk, or >50% reduction)?",
+              "type": "boolean"
+            },
+            {
+              "id": "bmi_category",
+              "text": "BMI category",
+              "type": "select",
+              "options": [
+                { "value": "normal", "label": "Normal (18.5-24.9)" },
+                { "value": "overweight", "label": "Overweight (25-29.9)" },
+                { "value": "obese", "label": "Obese (30+)" }
+              ]
+            },
+            {
+              "id": "exercise_status",
+              "text": "Regular exercise or cardiac rehab participation",
+              "type": "select",
+              "options": [
+                { "value": "regular", "label": "Exercises regularly (>150 min/week moderate activity)" },
+                { "value": "some", "label": "Some exercise but below target" },
+                { "value": "sedentary", "label": "Sedentary" },
+                { "value": "rehab", "label": "Currently in cardiac rehabilitation" }
+              ]
+            }
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            {
+              "field": "symptom_status",
+              "predicate": "in",
+              "value": ["asymptomatic", "ccs_1"],
+              "reason": "Patient must be asymptomatic or have only CCS Class I angina (symptoms with strenuous exertion only) to be appropriate for discharge from cardiology."
+            },
+            {
+              "field": "antiplatelet_status",
+              "predicate": "not_equals",
+              "value": "dapt_active",
+              "reason": "DAPT duration must be completed before discharge to ensure safe transition to PCP management of single antiplatelet therapy."
+            },
+            {
+              "field": "statin_status",
+              "predicate": "in",
+              "value": ["high_intensity", "intolerant"],
+              "reason": "Patient must be on high-intensity statin therapy (or documented intolerance with alternative) per ACC/AHA secondary prevention guidelines."
+            },
+            {
+              "field": "most_recent_acs",
+              "predicate": "gt",
+              "value": 12,
+              "reason": "At least 12 months must have elapsed since the most recent ACS event to ensure clinical stability before discharge."
+            },
+            {
+              "field": "planned_intervention",
+              "predicate": "equals",
+              "value": false,
+              "reason": "No planned coronary intervention should be pending at the time of discharge."
+            },
+            {
+              "field": "stress_test_result",
+              "predicate": "in",
+              "value": ["normal", "mildly_abnormal"],
+              "reason": "Stress test must show no ischemia or only a small area of ischemia to support safe discharge."
+            },
+            {
+              "field": "current_ef",
+              "predicate": "gte",
+              "value": 40,
+              "reason": "Ejection fraction must be at or above 40% to ensure adequate LV function for PCP-managed follow-up."
+            },
+            {
+              "any": [
+                {
+                  "field": "bp_controlled",
+                  "predicate": "equals",
+                  "value": true,
+                  "reason": "Blood pressure should be at goal for cardiovascular risk reduction."
+                },
+                {
+                  "field": "lipids_at_goal",
+                  "predicate": "equals",
+                  "value": true,
+                  "reason": "Lipid targets should be met for secondary prevention."
+                }
+              ]
+            },
+            {
+              "field": "smoking_status",
+              "predicate": "not_equals",
+              "value": "current",
+              "reason": "Active smoking is a modifiable risk factor that warrants continued cardiology involvement for aggressive risk reduction counseling."
+            },
+            {
+              "field": "medication_adherence",
+              "predicate": "in",
+              "value": ["fully_adherent", "mostly_adherent"],
+              "reason": "Adequate medication adherence is necessary to ensure safe transition to PCP-managed care."
+            }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            {
+              "field": "most_recent_acs",
+              "predicate": "lt",
+              "value": 6,
+              "reason": "Recent ACS within 6 months requires closer cardiology monitoring during the high-risk recovery period."
+            },
+            {
+              "field": "symptom_status",
+              "predicate": "in",
+              "value": ["ccs_2", "ccs_3", "ccs_4"],
+              "reason": "Recurrent or worsening angina (CCS Class II or higher) requires closer follow-up for medication adjustment or possible intervention."
+            },
+            {
+              "field": "planned_intervention",
+              "predicate": "equals",
+              "value": true,
+              "reason": "Planned intervention requires close follow-up for scheduling and pre-procedural optimization."
+            },
+            {
+              "field": "ef_trend",
+              "predicate": "equals",
+              "value": "declining",
+              "reason": "Declining ejection fraction requires closer monitoring and potential adjustment of heart failure therapies."
+            },
+            {
+              "field": "stress_test_result",
+              "predicate": "in",
+              "value": ["moderately_abnormal", "severely_abnormal"],
+              "reason": "Significant ischemia on stress testing warrants closer follow-up and possible angiographic evaluation."
+            },
+            {
+              "field": "antiplatelet_status",
+              "predicate": "equals",
+              "value": "dapt_active",
+              "reason": "Active DAPT therapy requires cardiology oversight until completion to assess bleeding risk and duration appropriateness."
+            },
+            {
+              "field": "medication_uptitration_needed",
+              "predicate": "equals",
+              "value": true,
+              "reason": "Active medication uptitration requires more frequent follow-up to assess efficacy, tolerability, and side effects."
+            },
+            {
+              "field": "recent_hospitalization",
+              "predicate": "equals",
+              "value": true,
+              "reason": "Recent cardiac hospitalization within 6 months indicates clinical instability requiring closer surveillance."
+            }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            {
+              "if": {
+                "field": "most_recent_acs",
+                "predicate": "lt",
+                "value": 6
+              },
+              "months": 3
+            },
+            {
+              "if": {
+                "field": "antiplatelet_status",
+                "predicate": "equals",
+                "value": "dapt_active"
+              },
+              "months": 3
+            },
+            {
+              "if": {
+                "field": "medication_uptitration_needed",
+                "predicate": "equals",
+                "value": true
+              },
+              "months": 6
+            },
+            {
+              "if": {
+                "field": "most_recent_acs",
+                "predicate": "between",
+                "value": [6, 12]
+              },
+              "months": 6
+            },
+            {
+              "if": {
+                "field": "ef_trend",
+                "predicate": "equals",
+                "value": "declining"
+              },
+              "months": 3
+            },
+            {
+              "if": {
+                "field": "symptom_status",
+                "predicate": "in",
+                "value": ["ccs_2", "ccs_3"]
+              },
+              "months": 3
+            },
+            {
+              "default": 12
+            }
+          ]
+        },
+        "pcp_precautions": [
+          {
+            "text": "Continue high-intensity statin therapy indefinitely. Target LDL <70 mg/dL (or >50% reduction from baseline). Monitor lipid panel annually and hepatic function as clinically indicated."
+          },
+          {
+            "text": "Continue antiplatelet therapy as prescribed. Aspirin 81 mg daily should be continued lifelong. Do not discontinue without cardiology consultation."
+          },
+          {
+            "condition": {
+              "field": "antiplatelet_status",
+              "predicate": "equals",
+              "value": "dapt_completed"
+            },
+            "text": "DAPT has been completed. Patient is now on single antiplatelet therapy. If surgery is planned, coordinate with cardiology regarding perioperative antiplatelet management."
+          },
+          {
+            "text": "Reinforce lifestyle modifications: heart-healthy diet (Mediterranean or DASH), regular aerobic exercise (at least 150 minutes/week of moderate activity), weight management (BMI <25), and smoking cessation if applicable."
+          },
+          {
+            "text": "Patient should return immediately for recurrent chest pain, new or worsening exertional dyspnea, or syncope/presyncope. These may indicate stent thrombosis, in-stent restenosis, or disease progression."
+          },
+          {
+            "text": "Consider periodic stress testing as clinically indicated, particularly if new symptoms develop. Routine periodic stress testing in asymptomatic patients is generally not recommended."
+          },
+          {
+            "condition": {
+              "field": "diabetes",
+              "predicate": "not_equals",
+              "value": "none"
+            },
+            "text": "Optimize glycemic control targeting HbA1c <7% (individualized). Consider SGLT2 inhibitors or GLP-1 receptor agonists which have demonstrated cardiovascular benefit."
+          },
+          {
+            "text": "Monitor and manage blood pressure to target <130/80 mmHg. Continue beta-blocker and/or ACEi/ARB as prescribed."
+          },
+          {
+            "condition": {
+              "field": "smoking_status",
+              "predicate": "in",
+              "value": ["current", "recent_quit"]
+            },
+            "text": "Smoking cessation is critical for secondary prevention. Offer pharmacotherapy (varenicline, bupropion, or NRT) and behavioral counseling. Refer to smoking cessation program if not already enrolled."
+          },
+          {
+            "text": "Refer back to cardiology if there is any change in symptom status, new ECG abnormalities, or if risk factors become persistently uncontrolled despite optimization."
+          }
+        ]
+      }
+    }
+  ]
+}

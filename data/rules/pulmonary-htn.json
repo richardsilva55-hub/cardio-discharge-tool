@@ -1,0 +1,155 @@
+{
+  "id": "pulmonary-htn",
+  "name": "Pulmonary Hypertension",
+  "subtypes": [
+    {
+      "id": "group1-pah",
+      "name": "Group 1 PAH",
+      "description": "Pulmonary arterial hypertension — generally NOT dischargeable",
+      "sections": [
+        {
+          "id": "diagnosis",
+          "title": "Diagnosis & Severity",
+          "questions": [
+            { "id": "rhc_confirmed", "label": "Confirmed by right heart catheterization?", "type": "boolean" },
+            { "id": "who_fc", "label": "WHO Functional Class", "type": "select", "options": [
+              { "value": "I", "label": "FC I — No limitation" },
+              { "value": "II", "label": "FC II — Slight limitation" },
+              { "value": "III", "label": "FC III — Marked limitation" },
+              { "value": "IV", "label": "FC IV — Symptoms at rest" }
+            ]},
+            { "id": "pah_subtype", "label": "PAH subtype", "type": "select", "options": [
+              { "value": "idiopathic", "label": "Idiopathic (IPAH)" },
+              { "value": "heritable", "label": "Heritable" },
+              { "value": "ctd", "label": "Connective tissue disease-associated" },
+              { "value": "drug_toxin", "label": "Drug/toxin-induced" },
+              { "value": "other", "label": "Other Group 1" }
+            ]}
+          ]
+        },
+        {
+          "id": "therapy",
+          "title": "PAH-Specific Therapy",
+          "questions": [
+            { "id": "on_pde5i", "label": "On PDE5 inhibitor (sildenafil/tadalafil)?", "type": "boolean" },
+            { "id": "on_era", "label": "On ERA (ambrisentan/bosentan/macitentan)?", "type": "boolean" },
+            { "id": "on_prostanoid", "label": "On prostanoid/prostacyclin pathway agent?", "type": "boolean" },
+            { "id": "therapy_stable", "label": "Therapy regimen stable?", "type": "boolean" }
+          ]
+        },
+        {
+          "id": "rv_function",
+          "title": "RV Function",
+          "questions": [
+            { "id": "rv_dilation", "label": "RV dilation?", "type": "boolean" },
+            { "id": "tapse", "label": "TAPSE (mm)", "type": "number", "min": 5, "max": 35 },
+            { "id": "rv_function_trend", "label": "RV function trend", "type": "select", "options": [
+              { "value": "stable", "label": "Stable" },
+              { "value": "improving", "label": "Improving" },
+              { "value": "worsening", "label": "Worsening" }
+            ]},
+            { "id": "pah_resolved", "label": "PAH fully resolved (no longer meets hemodynamic criteria)?", "type": "boolean" }
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            { "field": "pah_resolved", "equals": true, "reason": "PAH fully resolved — no longer meets hemodynamic criteria (extremely rare)" },
+            { "field": "who_fc", "in": ["I", "II"], "reason": "WHO FC I–II" },
+            { "field": "rv_function_trend", "in": ["stable", "improving"], "reason": "RV function stable or improving" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "who_fc", "in": ["III", "IV"], "reason": "WHO FC III–IV — significant functional limitation" },
+            { "field": "rv_function_trend", "equals": "worsening", "reason": "Worsening RV function" },
+            { "field": "therapy_stable", "equals": false, "reason": "PAH therapy being adjusted" },
+            { "field": "tapse", "lt": 17, "reason": "TAPSE < 17mm — impaired RV function" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "who_fc", "in": ["III", "IV"] }, "months": 1 },
+            { "if": { "field": "rv_function_trend", "equals": "worsening" }, "months": 1 },
+            { "if": { "field": "therapy_stable", "equals": false }, "months": 2 },
+            { "default": 3 }
+          ]
+        },
+        "pcp_precautions": [
+          { "text": "GROUP 1 PAH REQUIRES SPECIALIZED MANAGEMENT. This condition should generally NOT be discharged from cardiology/pulmonology." },
+          { "text": "NEVER discontinue PAH-specific therapy without pulmonary hypertension specialist guidance — can cause fatal rebound." },
+          { "text": "Avoid pregnancy — PAH carries extremely high maternal mortality risk." },
+          { "text": "Monitor for: worsening dyspnea, syncope, edema, weight gain. Urgent referral for any of these." },
+          { "condition": { "field": "on_era", "equals": true }, "text": "On ERA — monthly liver function tests required. Monthly pregnancy tests for women of childbearing potential." }
+        ]
+      }
+    },
+    {
+      "id": "group2-5-ph",
+      "name": "Group 2–5 PH",
+      "description": "PH due to left heart disease, lung disease, CTEPH, or other causes",
+      "sections": [
+        {
+          "id": "diagnosis",
+          "title": "Diagnosis & Cause",
+          "questions": [
+            { "id": "ph_group", "label": "PH group", "type": "select", "options": [
+              { "value": "2", "label": "Group 2 — Left heart disease" },
+              { "value": "3", "label": "Group 3 — Lung disease / hypoxia" },
+              { "value": "4", "label": "Group 4 — CTEPH" },
+              { "value": "5", "label": "Group 5 — Multifactorial" }
+            ]},
+            { "id": "underlying_cause_treated", "label": "Underlying cause treated and stable?", "type": "boolean" },
+            { "id": "who_fc", "label": "WHO Functional Class", "type": "select", "options": [
+              { "value": "I", "label": "FC I" }, { "value": "II", "label": "FC II" },
+              { "value": "III", "label": "FC III" }, { "value": "IV", "label": "FC IV" }
+            ]}
+          ]
+        },
+        {
+          "id": "rv_function",
+          "title": "RV Function & Stability",
+          "questions": [
+            { "id": "rv_function_stable", "label": "RV function stable?", "type": "boolean" },
+            { "id": "right_heart_failure", "label": "Signs of right heart failure?", "type": "boolean" },
+            { "id": "symptoms_stable", "label": "Symptoms stable ≥ 3 months?", "type": "boolean" }
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            { "field": "underlying_cause_treated", "equals": true, "reason": "Underlying cause treated and stable" },
+            { "field": "rv_function_stable", "equals": true, "reason": "RV function stable" },
+            { "field": "right_heart_failure", "equals": false, "reason": "No right heart failure" },
+            { "field": "who_fc", "in": ["I", "II"], "reason": "WHO FC I–II" },
+            { "field": "symptoms_stable", "equals": true, "reason": "Symptoms stable" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "rv_function_stable", "equals": false, "reason": "RV dysfunction progressing" },
+            { "field": "right_heart_failure", "equals": true, "reason": "Right heart failure" },
+            { "field": "who_fc", "in": ["III", "IV"], "reason": "WHO FC III–IV" },
+            { "field": "underlying_cause_treated", "equals": false, "reason": "Underlying cause not adequately treated" },
+            { "field": "ph_group", "equals": "4", "reason": "CTEPH requires evaluation for pulmonary endarterectomy or BPA" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "right_heart_failure", "equals": true }, "months": 1 },
+            { "if": { "field": "who_fc", "in": ["III", "IV"] }, "months": 2 },
+            { "if": { "field": "ph_group", "equals": "4" }, "months": 3 },
+            { "default": 6 }
+          ]
+        },
+        "pcp_precautions": [
+          { "text": "Treat underlying cause aggressively: optimize left heart disease, treat lung disease, consider anticoagulation for CTEPH." },
+          { "text": "Return for worsening dyspnea, new edema, syncope, or signs of right heart failure." },
+          { "condition": { "field": "ph_group", "equals": "4" }, "text": "Group 4 (CTEPH): Refer to experienced center for evaluation of surgical pulmonary endarterectomy or balloon pulmonary angioplasty." }
+        ]
+      }
+    }
+  ]
+}

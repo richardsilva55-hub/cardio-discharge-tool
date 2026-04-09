@@ -1,0 +1,373 @@
+{
+  "id": "afib-flutter",
+  "name": "AFib/Flutter",
+  "subtypes": [
+    {
+      "id": "afib-flutter-general",
+      "name": "Atrial Fibrillation / Flutter",
+      "description": "Decision support for discharge of patients with atrial fibrillation or atrial flutter, including rate/rhythm control assessment, anticoagulation management, and CHA2DS2-VASc/HAS-BLED risk stratification.",
+      "sections": [
+        {
+          "id": "diagnosis",
+          "name": "Diagnosis",
+          "questions": [
+            {
+              "id": "af_type",
+              "label": "AF Type",
+              "type": "select",
+              "options": [
+                { "value": "paroxysmal", "label": "Paroxysmal" },
+                { "value": "persistent", "label": "Persistent" },
+                { "value": "permanent", "label": "Permanent" }
+              ]
+            },
+            {
+              "id": "af_duration_years",
+              "label": "Duration of AF diagnosis (years)",
+              "type": "number",
+              "min": 0,
+              "max": 60,
+              "step": 0.5
+            }
+          ]
+        },
+        {
+          "id": "rate_rhythm_control",
+          "name": "Rate / Rhythm Control",
+          "questions": [
+            {
+              "id": "rate_controlled",
+              "label": "Is the ventricular rate adequately controlled?",
+              "type": "boolean"
+            },
+            {
+              "id": "control_strategy",
+              "label": "Control strategy",
+              "type": "select",
+              "options": [
+                { "value": "rate_control", "label": "Rate control" },
+                { "value": "rhythm_control", "label": "Rhythm control" }
+              ]
+            },
+            {
+              "id": "current_hr",
+              "label": "Current resting heart rate (bpm)",
+              "type": "number",
+              "min": 30,
+              "max": 250,
+              "step": 1
+            }
+          ]
+        },
+        {
+          "id": "anticoagulation",
+          "name": "Anticoagulation",
+          "questions": [
+            {
+              "id": "cha2ds2_vasc_assessed",
+              "label": "CHA2DS2-VASc score documented?",
+              "type": "boolean"
+            },
+            {
+              "id": "on_anticoagulation",
+              "label": "Currently on anticoagulation?",
+              "type": "boolean"
+            },
+            {
+              "id": "anticoag_type",
+              "label": "Type of anticoagulant",
+              "type": "select",
+              "condition": { "field": "on_anticoagulation", "equals": true },
+              "options": [
+                { "value": "warfarin", "label": "Warfarin" },
+                { "value": "apixaban", "label": "Apixaban" },
+                { "value": "rivaroxaban", "label": "Rivaroxaban" },
+                { "value": "dabigatran", "label": "Dabigatran" },
+                { "value": "edoxaban", "label": "Edoxaban" }
+              ]
+            },
+            {
+              "id": "anticoag_stable_months",
+              "label": "Months on stable anticoagulation regimen",
+              "type": "number",
+              "condition": { "field": "on_anticoagulation", "equals": true },
+              "min": 0,
+              "max": 120,
+              "step": 1
+            },
+            {
+              "id": "has_bled_assessed",
+              "label": "HAS-BLED score documented?",
+              "type": "boolean"
+            }
+          ]
+        },
+        {
+          "id": "procedures",
+          "name": "Procedures",
+          "questions": [
+            {
+              "id": "ablation_history",
+              "label": "History of catheter ablation for AF?",
+              "type": "boolean"
+            },
+            {
+              "id": "ablation_months_ago",
+              "label": "Months since last ablation",
+              "type": "number",
+              "condition": { "field": "ablation_history", "equals": true },
+              "min": 0,
+              "max": 240,
+              "step": 1
+            },
+            {
+              "id": "cardioversion_history",
+              "label": "History of cardioversion?",
+              "type": "boolean"
+            },
+            {
+              "id": "cardioversion_months_ago",
+              "label": "Months since last cardioversion",
+              "type": "number",
+              "condition": { "field": "cardioversion_history", "equals": true },
+              "min": 0,
+              "max": 240,
+              "step": 1
+            }
+          ]
+        },
+        {
+          "id": "comorbidities",
+          "name": "Comorbidities",
+          "description": "Used for CHA2DS2-VASc and HAS-BLED auto-calculation",
+          "questions": [
+            {
+              "id": "age",
+              "label": "Age (years)",
+              "type": "number",
+              "min": 18,
+              "max": 120,
+              "step": 1
+            },
+            {
+              "id": "sex",
+              "label": "Sex",
+              "type": "select",
+              "options": [
+                { "value": "male", "label": "Male" },
+                { "value": "female", "label": "Female" }
+              ]
+            },
+            {
+              "id": "chf",
+              "label": "Congestive heart failure",
+              "type": "boolean"
+            },
+            {
+              "id": "hypertension",
+              "label": "Hypertension",
+              "type": "boolean"
+            },
+            {
+              "id": "diabetes",
+              "label": "Diabetes mellitus",
+              "type": "boolean"
+            },
+            {
+              "id": "stroke_tia_history",
+              "label": "History of stroke or TIA",
+              "type": "boolean"
+            },
+            {
+              "id": "vascular_disease",
+              "label": "Vascular disease (prior MI, PAD, aortic plaque)",
+              "type": "boolean"
+            },
+            {
+              "id": "renal_disease",
+              "label": "Renal disease (dialysis, transplant, Cr >2.26)",
+              "type": "boolean"
+            },
+            {
+              "id": "liver_disease",
+              "label": "Liver disease (cirrhosis, bilirubin >2x, AST/ALT >3x)",
+              "type": "boolean"
+            },
+            {
+              "id": "bleeding_history",
+              "label": "Prior major bleeding or predisposition",
+              "type": "boolean"
+            },
+            {
+              "id": "labile_inr",
+              "label": "Labile INR (TTR <60%)",
+              "type": "boolean"
+            },
+            {
+              "id": "antiplatelet_use",
+              "label": "Concomitant antiplatelet or NSAID use",
+              "type": "boolean"
+            },
+            {
+              "id": "alcohol_use",
+              "label": "Alcohol use (≥8 drinks/week)",
+              "type": "boolean"
+            }
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            {
+              "any": [
+                {
+                  "field": "rate_controlled",
+                  "equals": true,
+                  "reason": "Ventricular rate must be adequately controlled"
+                },
+                {
+                  "field": "control_strategy",
+                  "equals": "rhythm_control",
+                  "reason": "Patient on rhythm control strategy with sinus rhythm maintained"
+                }
+              ]
+            },
+            {
+              "field": "anticoag_stable_months",
+              "gte": 6,
+              "reason": "Anticoagulation must be stable for at least 6 months"
+            },
+            {
+              "any": [
+                {
+                  "field": "ablation_history",
+                  "equals": false,
+                  "reason": "No ablation history"
+                },
+                {
+                  "field": "ablation_months_ago",
+                  "gte": 6,
+                  "reason": "At least 6 months since last ablation"
+                }
+              ]
+            },
+            {
+              "any": [
+                {
+                  "field": "cardioversion_history",
+                  "equals": false,
+                  "reason": "No cardioversion history"
+                },
+                {
+                  "field": "cardioversion_months_ago",
+                  "gte": 3,
+                  "reason": "At least 3 months since last cardioversion"
+                }
+              ]
+            },
+            {
+              "field": "cha2ds2_vasc_assessed",
+              "equals": true,
+              "reason": "CHA2DS2-VASc score must be documented"
+            },
+            {
+              "field": "on_anticoagulation",
+              "equals": true,
+              "reason": "Anticoagulation must be prescribed when indicated by CHA2DS2-VASc"
+            }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            {
+              "field": "rate_controlled",
+              "equals": false,
+              "reason": "Uncontrolled ventricular rate requires closer follow-up"
+            },
+            {
+              "field": "ablation_months_ago",
+              "lt": 6,
+              "reason": "Recent ablation within 6 months requires closer monitoring"
+            },
+            {
+              "field": "cardioversion_months_ago",
+              "lt": 3,
+              "reason": "Recent cardioversion within 3 months requires closer monitoring"
+            },
+            {
+              "field": "anticoag_stable_months",
+              "lt": 6,
+              "reason": "Anticoagulation not yet stable for 6 months"
+            }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            {
+              "if": {
+                "any": [
+                  {
+                    "field": "ablation_months_ago",
+                    "lt": 6,
+                    "reason": "Recent ablation requires 2-month follow-up"
+                  },
+                  {
+                    "field": "cardioversion_months_ago",
+                    "lt": 3,
+                    "reason": "Recent cardioversion requires 2-month follow-up"
+                  }
+                ]
+              },
+              "months": 2
+            },
+            {
+              "if": {
+                "any": [
+                  {
+                    "field": "anticoag_stable_months",
+                    "lt": 6,
+                    "reason": "Medication adjustment period requires 3-month follow-up"
+                  },
+                  {
+                    "field": "rate_controlled",
+                    "equals": false,
+                    "reason": "Rate not yet controlled requires 3-month follow-up"
+                  }
+                ]
+              },
+              "months": 3
+            },
+            {
+              "default": 6
+            }
+          ]
+        },
+        "pcp_precautions": [
+          {
+            "text": "Continue anticoagulation as prescribed; do not discontinue without cardiology consultation."
+          },
+          {
+            "text": "Monitor heart rate regularly; target resting HR <110 bpm (or <80 bpm if symptomatic)."
+          },
+          {
+            "condition": {
+              "field": "anticoag_type",
+              "equals": "warfarin"
+            },
+            "text": "Monitor INR regularly; maintain therapeutic range (typically 2.0-3.0)."
+          },
+          {
+            "text": "Patient should return for evaluation if experiencing palpitations, rapid heart rate, or worsening exercise intolerance."
+          },
+          {
+            "text": "Seek urgent evaluation for syncope, presyncope, or signs/symptoms of stroke (sudden weakness, speech difficulty, facial droop, vision changes)."
+          },
+          {
+            "text": "Review CHA2DS2-VASc and HAS-BLED scores annually and reassess anticoagulation appropriateness."
+          }
+        ]
+      }
+    }
+  ]
+}

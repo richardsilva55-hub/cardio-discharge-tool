@@ -1,0 +1,201 @@
+{
+  "id": "syncope",
+  "name": "Syncope",
+  "subtypes": [
+    {
+      "id": "vasovagal",
+      "name": "Vasovagal Syncope",
+      "description": "Reflex-mediated (neurocardiogenic) syncope",
+      "sections": [
+        {
+          "id": "diagnosis",
+          "title": "Diagnosis",
+          "questions": [
+            { "id": "diagnosis_confidence", "label": "Diagnostic confidence", "type": "select", "options": [
+              { "value": "certain", "label": "Certain — classic history +/- positive tilt" },
+              { "value": "probable", "label": "Probable — typical features, no alternative" },
+              { "value": "uncertain", "label": "Uncertain — could be other cause" }
+            ]},
+            { "id": "triggers_identified", "label": "Triggers identified?", "type": "boolean" },
+            { "id": "structural_heart_excluded", "label": "Structural heart disease excluded (echo, ECG normal)?", "type": "boolean" }
+          ]
+        },
+        {
+          "id": "recurrence",
+          "title": "Recurrence & Treatment",
+          "questions": [
+            { "id": "episodes_6mo", "label": "Episodes in last 6 months", "type": "number", "min": 0, "max": 50 },
+            { "id": "injury_risk", "label": "Any syncope-related injury?", "type": "boolean" },
+            { "id": "counseling_done", "label": "Patient counseled on trigger avoidance and counterpressure maneuvers?", "type": "boolean" }
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            { "field": "diagnosis_confidence", "in": ["certain", "probable"], "reason": "Clear vasovagal diagnosis" },
+            { "field": "structural_heart_excluded", "equals": true, "reason": "Structural heart disease excluded" },
+            { "field": "episodes_6mo", "equals": 0, "reason": "No episodes in last 6 months" },
+            { "field": "counseling_done", "equals": true, "reason": "Patient counseled on trigger avoidance" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "episodes_6mo", "gte": 3, "reason": "Frequent episodes (≥ 3 in 6 months)" },
+            { "field": "injury_risk", "equals": true, "reason": "Syncope-related injury" },
+            { "field": "diagnosis_confidence", "equals": "uncertain", "reason": "Diagnosis uncertain — further workup needed" },
+            { "field": "structural_heart_excluded", "equals": false, "reason": "Structural heart disease not yet excluded" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "episodes_6mo", "gte": 3 }, "months": 2 },
+            { "if": { "field": "diagnosis_confidence", "equals": "uncertain" }, "months": 3 },
+            { "default": 6 }
+          ]
+        },
+        "pcp_precautions": [
+          { "text": "Vasovagal syncope is benign but can impact quality of life. Trigger avoidance is the primary treatment." },
+          { "text": "Ensure adequate hydration and salt intake (unless contraindicated). Counterpressure maneuvers at onset of prodrome." },
+          { "text": "Return to cardiology if: episodes become more frequent, occur without warning (no prodrome), or occur during exertion." },
+          { "text": "Driving restrictions per local regulations (typically restrict after syncope until episode-free for a defined period)." }
+        ]
+      }
+    },
+    {
+      "id": "cardiac-syncope",
+      "name": "Cardiac Syncope",
+      "description": "Syncope due to arrhythmia or structural heart disease",
+      "sections": [
+        {
+          "id": "cause",
+          "title": "Cause & Treatment",
+          "questions": [
+            { "id": "cardiac_cause", "label": "Cardiac cause", "type": "select", "options": [
+              { "value": "bradycardia", "label": "Bradycardia (sinus node dysfunction, AV block)" },
+              { "value": "vt", "label": "Ventricular tachycardia" },
+              { "value": "svt", "label": "SVT with hemodynamic compromise" },
+              { "value": "structural", "label": "Structural (AS, HCM, PE, etc.)" },
+              { "value": "other", "label": "Other cardiac cause" }
+            ]},
+            { "id": "cause_treated", "label": "Cause treated?", "type": "boolean" },
+            { "id": "treatment_type", "label": "Treatment", "type": "select", "options": [
+              { "value": "pacemaker", "label": "Pacemaker implanted" },
+              { "value": "icd", "label": "ICD implanted" },
+              { "value": "ablation", "label": "Ablation performed" },
+              { "value": "medication", "label": "Medication" },
+              { "value": "surgery", "label": "Surgical correction" },
+              { "value": "pending", "label": "Treatment pending" }
+            ]}
+          ]
+        },
+        {
+          "id": "stability",
+          "title": "Stability",
+          "questions": [
+            { "id": "recurrence_since_treatment", "label": "Any recurrence since treatment?", "type": "boolean" },
+            { "id": "months_since_treatment", "label": "Months since treatment", "type": "number", "min": 0, "max": 120 },
+            { "id": "device_functioning", "label": "Device functioning well (if applicable)?", "type": "boolean", "condition": { "field": "treatment_type", "in": ["pacemaker", "icd"] } }
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            { "field": "cause_treated", "equals": true, "reason": "Cardiac cause identified and treated" },
+            { "field": "recurrence_since_treatment", "equals": false, "reason": "No recurrence since treatment" },
+            { "field": "months_since_treatment", "gte": 6, "reason": "≥ 6 months since treatment without recurrence" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "cause_treated", "equals": false, "reason": "Cause not yet treated" },
+            { "field": "recurrence_since_treatment", "equals": true, "reason": "Recurrence despite treatment" },
+            { "field": "treatment_type", "equals": "pending", "reason": "Treatment pending" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "treatment_type", "equals": "pending" }, "months": 1 },
+            { "if": { "field": "recurrence_since_treatment", "equals": true }, "months": 2 },
+            { "if": { "field": "months_since_treatment", "lt": 6 }, "months": 3 },
+            { "default": 12 }
+          ]
+        },
+        "pcp_precautions": [
+          { "text": "Cardiac syncope is potentially life-threatening. Ensure treatment is in place before discharge from cardiology." },
+          { "condition": { "field": "treatment_type", "in": ["pacemaker", "icd"] }, "text": "Device in place — annual interrogation required. Urgent evaluation for syncope recurrence or device alerts." },
+          { "text": "Return urgently for any recurrent syncope, presyncope, palpitations, or cardiac arrest." }
+        ]
+      }
+    },
+    {
+      "id": "unexplained",
+      "name": "Unexplained Syncope",
+      "description": "Syncope with incomplete or negative workup",
+      "sections": [
+        {
+          "id": "workup",
+          "title": "Workup Completeness",
+          "questions": [
+            { "id": "echo_done", "label": "Echocardiogram done?", "type": "boolean" },
+            { "id": "echo_normal", "label": "Echo normal?", "type": "boolean", "condition": { "field": "echo_done", "equals": true } },
+            { "id": "ecg_normal", "label": "ECG normal?", "type": "boolean" },
+            { "id": "holter_done", "label": "Holter / event monitor done?", "type": "boolean" },
+            { "id": "monitor_result", "label": "Monitor result", "type": "select", "options": [
+              { "value": "normal", "label": "Normal" },
+              { "value": "abnormal", "label": "Abnormal / diagnostic" },
+              { "value": "nondiagnostic", "label": "Non-diagnostic" }
+            ], "condition": { "field": "holter_done", "equals": true } },
+            { "id": "tilt_done", "label": "Tilt table test done?", "type": "boolean" },
+            { "id": "implantable_monitor", "label": "Implantable loop recorder placed?", "type": "boolean" }
+          ]
+        },
+        {
+          "id": "risk",
+          "title": "Risk Stratification",
+          "questions": [
+            { "id": "structural_heart_disease", "label": "Any structural heart disease?", "type": "boolean" },
+            { "id": "abnormal_ecg", "label": "Abnormal ECG (BBB, Q waves, long QT, pre-excitation)?", "type": "boolean" },
+            { "id": "syncope_during_exertion", "label": "Syncope during exertion?", "type": "boolean" },
+            { "id": "family_hx_scd", "label": "Family history of sudden cardiac death?", "type": "boolean" },
+            { "id": "episodes_count", "label": "Total lifetime episodes", "type": "number", "min": 1, "max": 100 }
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            { "field": "structural_heart_disease", "equals": false, "reason": "No structural heart disease" },
+            { "field": "ecg_normal", "equals": true, "reason": "Normal ECG" },
+            { "field": "syncope_during_exertion", "equals": false, "reason": "Syncope not exertional" },
+            { "field": "family_hx_scd", "equals": false, "reason": "No family history of SCD" },
+            { "field": "echo_done", "equals": true, "reason": "Echo completed" },
+            { "field": "echo_normal", "equals": true, "reason": "Echo normal" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "structural_heart_disease", "equals": true, "reason": "Structural heart disease present — higher risk" },
+            { "field": "abnormal_ecg", "equals": true, "reason": "Abnormal ECG — possible arrhythmic cause" },
+            { "field": "syncope_during_exertion", "equals": true, "reason": "Exertional syncope — red flag for cardiac cause" },
+            { "field": "family_hx_scd", "equals": true, "reason": "Family history of SCD" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "syncope_during_exertion", "equals": true }, "months": 1 },
+            { "if": { "field": "structural_heart_disease", "equals": true }, "months": 3 },
+            { "if": { "field": "implantable_monitor", "equals": true }, "months": 3 },
+            { "default": 6 }
+          ]
+        },
+        "pcp_precautions": [
+          { "text": "Low-risk unexplained syncope (normal heart, normal ECG, non-exertional) has a favorable prognosis." },
+          { "text": "Return for: recurrent episodes, syncope during exertion, palpitations before syncope, or syncope without warning." },
+          { "condition": { "field": "implantable_monitor", "equals": true }, "text": "Implantable loop recorder in place — patient should transmit data as instructed. Will capture rhythm during future events." }
+        ]
+      }
+    }
+  ]
+}
