@@ -179,3 +179,45 @@ export function evaluateMultipleConditions(conditionResults) {
 
   return merged;
 }
+
+export function evaluateCondition(condition, answers) {
+  const value = answers[condition.field];
+  if (value === undefined || value === null || value === '') return false;
+
+  const isEqual = (a, b) => String(a) === String(b);
+  let result = true;
+
+  if ('equals' in condition) result = result && isEqual(value, condition.equals);
+  if ('in' in condition) result = result && condition.in.some(opt => isEqual(opt, value));
+  if ('gte' in condition) result = result && (Number(value) >= condition.gte);
+  if ('lt' in condition) result = result && (Number(value) < condition.lt);
+  
+  if (condition.and) result = result && evaluateCondition(condition.and, answers);
+  return result;
+}
+
+export function calculateFollowUp(answers, rules) {
+    if (!rules || !rules.followup_interval) return { value: 6, unit: 'months' };
+    let recommendations = [];
+
+    rules.followup_interval.rules.forEach(rule => {
+        if (rule.if && evaluateCondition(rule.if, answers)) {
+            if (rule.days) recommendations.push({ value: rule.days, unit: 'days' });
+            else if (rule.weeks) recommendations.push({ value: rule.weeks, unit: 'weeks' });
+            else if (rule.months) recommendations.push({ value: rule.months, unit: 'months' });
+        }
+    });
+
+    if (recommendations.length > 0) {
+        return recommendations.sort((a, b) => {
+            const toDays = (r) => {
+                const val = Number(r.value) || 0;
+                if (r.unit === 'days') return val;
+                if (r.unit === 'weeks') return val * 7;
+                return val * 30;
+            };
+            return toDays(a) - toDays(b);
+        })[0];
+    }
+    return { value: rules.followup_interval.default || 6, unit: 'months' };
+}
