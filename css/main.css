@@ -271,3 +271,15 @@ body {
     max-height: none !important;
   }
 }
+.app-signature {
+  margin-top: 3rem;
+  padding: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  text-align: center;
+}
+.signature-credit {
+  display: block;
+  font-weight: 700;
+  color: #004a99;
+  font-size: 1.1rem;
+}
