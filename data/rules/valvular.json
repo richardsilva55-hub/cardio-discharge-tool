@@ -1,24 +1,365 @@
 {
   "id": "valvular",
+  "name": "Valvular Heart Disease",
   "subtypes": [
     {
       "id": "aortic-stenosis",
-      "rules": {
-        "closer_followup": {
-          "any": [
-            { "field": "peak_velocity", "gte": 5, "reason": "Vmax ≥ 5 m/s (Very Severe AS) requires 3-month follow-up" },
-            { "field": "ef_current", "lt": 50, "reason": "LVEF < 50% is a surgical trigger" }
+      "name": "Aortic Stenosis",
+      "description": "Native aortic valve stenosis",
+      "sections": [
+        {
+          "id": "severity",
+          "title": "Valve Severity",
+          "questions": [
+            {
+              "id": "as_severity",
+              "label": "AS severity classification",
+              "type": "select",
+              "options": [
+                { "value": "mild", "label": "Mild (AVA > 1.5 cm², MG < 20 mmHg)" },
+                { "value": "moderate", "label": "Moderate (AVA 1.0–1.5, MG 20–40)" },
+                { "value": "severe", "label": "Severe (AVA < 1.0, MG ≥ 40)" }
+              ]
+            },
+            {
+              "id": "mean_gradient",
+              "label": "Mean gradient (mmHg)",
+              "type": "number",
+              "min": 0,
+              "max": 120
+            },
+            {
+              "id": "peak_velocity",
+              "label": "Peak aortic velocity (m/s)",
+              "type": "number",
+              "min": 1,
+              "max": 7,
+              "step": 0.1
+            },
+            {
+              "id": "progression_rate",
+              "label": "Rate of progression",
+              "type": "select",
+              "options": [
+                { "value": "slow", "label": "Slow / stable" },
+                { "value": "moderate", "label": "Moderate" },
+                { "value": "rapid", "label": "Rapid" }
+              ]
+            }
           ]
         },
-        "followup_interval": { "rules": [{ "if": { "field": "peak_velocity", "gte": 5 }, "months": 3 }, { "default": 12 }] }
+        {
+          "id": "symptoms",
+          "title": "Symptoms",
+          "questions": [
+            {
+              "id": "has_dyspnea", "label": "Dyspnea on exertion?", "type": "boolean"
+            },
+            {
+              "id": "has_angina", "label": "Angina?", "type": "boolean"
+            },
+            {
+              "id": "has_syncope", "label": "Syncope or presyncope?", "type": "boolean"
+            }
+          ]
+        },
+        {
+          "id": "lv_function",
+          "title": "LV Function",
+          "questions": [
+            {
+              "id": "ef_current",
+              "label": "LVEF (%)",
+              "type": "number",
+              "min": 10,
+              "max": 80
+            }
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            { "field": "as_severity", "equals": "mild", "reason": "Mild AS only — moderate AS requires ongoing cardiology surveillance" },
+            { "field": "has_dyspnea", "equals": false, "reason": "No dyspnea" },
+            { "field": "has_angina", "equals": false, "reason": "No angina" },
+            { "field": "has_syncope", "equals": false, "reason": "No syncope" },
+            { "field": "ef_current", "gte": 50, "reason": "Normal LVEF" },
+            { "field": "progression_rate", "in": ["slow", "moderate"], "reason": "Not rapidly progressing" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "as_severity", "in": ["moderate", "severe"], "reason": "Moderate or severe AS requires ongoing cardiology follow-up" },
+            { "field": "has_syncope", "equals": true, "reason": "Syncope in AS is a red-flag symptom" },
+            { "field": "ef_current", "lt": 50, "reason": "Reduced LVEF" },
+            { "field": "progression_rate", "equals": "rapid", "reason": "Rapidly progressing AS" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "as_severity", "equals": "severe" }, "months": 3 },
+            { "if": { "field": "as_severity", "equals": "moderate" }, "months": 6 },
+            { "if": { "field": "progression_rate", "equals": "rapid" }, "months": 3 },
+            { "default": 12 }
+          ]
+        },
+        "pcp_precautions": [
+          { "condition": { "field": "as_severity", "equals": "mild" }, "text": "Mild AS — annual echocardiogram recommended. Return for new dyspnea, chest pain, or syncope." },
+          { "condition": { "field": "as_severity", "equals": "moderate" }, "text": "Moderate AS — echocardiogram every 1–2 years. Monitor closely for symptom development." },
+          { "text": "Educate patient: report any new dyspnea, lightheadedness, chest pain, or decreased exercise tolerance immediately." },
+          { "text": "Endocarditis prophylaxis per current guidelines if indicated." }
+        ]
+      }
+    },
+    {
+      "id": "mitral-regurgitation",
+      "name": "Mitral Regurgitation",
+      "description": "Native mitral valve regurgitation",
+      "sections": [
+        {
+          "id": "severity",
+          "title": "MR Severity",
+          "questions": [
+            {
+              "id": "mr_grade",
+              "label": "MR severity",
+              "type": "select",
+              "options": [
+                { "value": "mild", "label": "Mild (trace–mild)" },
+                { "value": "moderate", "label": "Moderate" },
+                { "value": "severe", "label": "Severe" }
+              ]
+            },
+            {
+              "id": "mr_mechanism",
+              "label": "Mechanism",
+              "type": "select",
+              "options": [
+                { "value": "degenerative", "label": "Degenerative (prolapse, flail)" },
+                { "value": "functional", "label": "Functional (secondary to LV dilation)" },
+                { "value": "rheumatic", "label": "Rheumatic" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "symptoms",
+          "title": "Symptoms",
+          "questions": [
+            { "id": "has_symptoms", "label": "Symptomatic (dyspnea, fatigue)?", "type": "boolean" },
+            { "id": "nyha_class", "label": "NYHA class (if symptomatic)", "type": "select", "options": [
+              { "value": "I", "label": "Class I" }, { "value": "II", "label": "Class II" },
+              { "value": "III", "label": "Class III" }, { "value": "IV", "label": "Class IV" }
+            ], "condition": { "field": "has_symptoms", "equals": true } }
+          ]
+        },
+        {
+          "id": "lv_function",
+          "title": "LV Function & Size",
+          "questions": [
+            { "id": "ef_current", "label": "LVEF (%)", "type": "number", "min": 10, "max": 80 },
+            { "id": "lvesd", "label": "LVESD (mm)", "type": "number", "min": 20, "max": 80 },
+            { "id": "la_dilated", "label": "Left atrium dilated?", "type": "boolean" },
+            { "id": "echo_stable", "label": "Stable on serial echocardiography?", "type": "boolean" }
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            { "field": "mr_grade", "equals": "mild", "reason": "Mild MR only — moderate MR requires ongoing cardiology surveillance" },
+            { "field": "has_symptoms", "equals": false, "reason": "Asymptomatic" },
+            { "field": "ef_current", "gte": 60, "reason": "LVEF ≥ 60%" },
+            { "field": "echo_stable", "equals": true, "reason": "Stable on serial echo" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "mr_grade", "in": ["moderate", "severe"], "reason": "Moderate or severe MR requires ongoing cardiology follow-up" },
+            { "field": "ef_current", "lt": 60, "reason": "LVEF < 60% (in MR, EF < 60% indicates LV dysfunction)" },
+            { "field": "lvesd", "gte": 40, "reason": "LVESD ≥ 40mm — approaching surgical trigger" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "mr_grade", "equals": "severe" }, "months": 6 },
+            { "if": { "field": "ef_current", "lt": 60 }, "months": 3 },
+            { "default": 12 }
+          ]
+        },
+        "pcp_precautions": [
+          { "text": "Annual echocardiogram to monitor MR severity and LV function." },
+          { "text": "Return to cardiology for new dyspnea, fatigue, palpitations, or decreased exercise tolerance." },
+          { "condition": { "field": "mr_grade", "equals": "moderate" }, "text": "Moderate MR — watch for progression. Echo every 1–2 years." }
+        ]
       }
     },
     {
       "id": "aortic-regurgitation",
+      "name": "Aortic Regurgitation",
+      "description": "Native aortic valve regurgitation",
+      "sections": [
+        {
+          "id": "severity",
+          "title": "AR Severity",
+          "questions": [
+            {
+              "id": "ar_grade",
+              "label": "AR severity",
+              "type": "select",
+              "options": [
+                { "value": "mild", "label": "Mild" },
+                { "value": "moderate", "label": "Moderate" },
+                { "value": "severe", "label": "Severe" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "symptoms",
+          "title": "Symptoms",
+          "questions": [
+            { "id": "has_symptoms", "label": "Symptomatic?", "type": "boolean" }
+          ]
+        },
+        {
+          "id": "lv_function",
+          "title": "LV Function & Dimensions",
+          "questions": [
+            { "id": "ef_current", "label": "LVEF (%)", "type": "number", "min": 10, "max": 80 },
+            { "id": "lvedd", "label": "LVEDD (mm)", "type": "number", "min": 30, "max": 90 },
+            { "id": "lvesd", "label": "LVESD (mm)", "type": "number", "min": 20, "max": 70 },
+            { "id": "lv_dilating", "label": "Progressive LV dilation?", "type": "boolean" }
+          ]
+        }
+      ],
       "rules": {
         "discharge_eligible": {
-          "all": [{ "field": "ef_current", "gte": 55, "severity": "strict", "reason": "LVEF threshold is 55% per 2020 Guidelines" }]
+          "all": [
+            { "field": "ar_grade", "equals": "mild", "reason": "Mild AR only — moderate AR requires ongoing cardiology surveillance" },
+            { "field": "has_symptoms", "equals": false, "reason": "Asymptomatic" },
+            { "field": "ef_current", "gte": 55, "reason": "Preserved LVEF" },
+            { "field": "lv_dilating", "equals": false, "reason": "No progressive LV dilation" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "ar_grade", "in": ["moderate", "severe"], "reason": "Moderate or severe AR requires ongoing cardiology follow-up" },
+            { "field": "ef_current", "lt": 55, "reason": "Declining LVEF" },
+            { "field": "lvesd", "gte": 50, "reason": "LVESD ≥ 50mm — approaching surgical criteria" },
+            { "field": "lv_dilating", "equals": true, "reason": "Progressive LV dilation" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "ar_grade", "equals": "severe" }, "months": 6 },
+            { "if": { "field": "lv_dilating", "equals": true }, "months": 6 },
+            { "default": 12 }
+          ]
+        },
+        "pcp_precautions": [
+          { "text": "Annual echo to track LV dimensions and AR severity." },
+          { "text": "Return for new dyspnea, decreased exercise tolerance, or palpitations." }
+        ]
+      }
+    },
+    {
+      "id": "prosthetic-valve",
+      "name": "Prosthetic Valve",
+      "description": "Mechanical or bioprosthetic valve replacement",
+      "sections": [
+        {
+          "id": "valve_info",
+          "title": "Valve Details",
+          "questions": [
+            {
+              "id": "valve_type",
+              "label": "Valve type",
+              "type": "select",
+              "options": [
+                { "value": "mechanical", "label": "Mechanical" },
+                { "value": "bioprosthetic", "label": "Bioprosthetic" },
+                { "value": "tavr", "label": "TAVR" }
+              ]
+            },
+            {
+              "id": "valve_position",
+              "label": "Valve position",
+              "type": "select",
+              "options": [
+                { "value": "aortic", "label": "Aortic" },
+                { "value": "mitral", "label": "Mitral" },
+                { "value": "multiple", "label": "Multiple valves" }
+              ]
+            },
+            {
+              "id": "months_since_surgery",
+              "label": "Months since valve surgery/procedure",
+              "type": "number",
+              "min": 0,
+              "max": 600
+            }
+          ]
+        },
+        {
+          "id": "stability",
+          "title": "Valve Function",
+          "questions": [
+            { "id": "gradient_stable", "label": "Transvalvular gradient stable?", "type": "boolean" },
+            { "id": "paravalvular_leak", "label": "Paravalvular leak present?", "type": "boolean" },
+            { "id": "has_symptoms", "label": "Symptomatic?", "type": "boolean" }
+          ]
+        },
+        {
+          "id": "anticoag",
+          "title": "Anticoagulation",
+          "questions": [
+            {
+              "id": "on_anticoag",
+              "label": "On anticoagulation?",
+              "type": "boolean",
+              "condition": { "field": "valve_type", "equals": "mechanical" }
+            },
+            {
+              "id": "inr_stable",
+              "label": "INR consistently in therapeutic range?",
+              "type": "boolean",
+              "condition": { "field": "valve_type", "equals": "mechanical" }
+            }
+          ]
         }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            { "field": "valve_type", "equals": "never_dischargeable", "reason": "All prosthetic valve patients require lifelong cardiology follow-up" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "paravalvular_leak", "equals": true, "reason": "Paravalvular leak requires monitoring" },
+            { "field": "gradient_stable", "equals": false, "reason": "Changing gradient — possible structural valve deterioration or obstruction" },
+            { "field": "has_symptoms", "equals": true, "reason": "Symptomatic — needs further evaluation" },
+            { "field": "months_since_surgery", "lt": 6, "reason": "Less than 6 months post-surgery" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "months_since_surgery", "lt": 12 }, "months": 3 },
+            { "if": { "field": "gradient_stable", "equals": false }, "months": 3 },
+            { "if": { "field": "paravalvular_leak", "equals": true }, "months": 6 },
+            { "default": 12 }
+          ]
+        },
+        "pcp_precautions": [
+          { "text": "PROSTHETIC VALVE PATIENTS REQUIRE LIFELONG CARDIOLOGY FOLLOW-UP. Do not discharge from cardiology." },
+          { "text": "Annual echocardiogram to monitor valve function." },
+          { "condition": { "field": "valve_type", "equals": "mechanical" }, "text": "Mechanical valve — lifelong warfarin required. Target INR per cardiology guidance. Do NOT switch to DOAC." },
+          { "condition": { "field": "valve_type", "equals": "bioprosthetic" }, "text": "Bioprosthetic valve — expected lifespan 10–20 years. Annual echo to monitor for degeneration." },
+          { "text": "Endocarditis prophylaxis required for dental procedures involving gingival manipulation or perforation of oral mucosa." },
+          { "text": "Return to cardiology for new dyspnea, syncope, chest pain, fever with new murmur, or any embolic event." }
+        ]
       }
     }
   ]
