@@ -325,3 +325,51 @@ function injectSignature(container) {
 
 // In showResult and showConditionSelector, call:
 // injectSignature(document.getElementById('app'));
+
+import { renderConditionSelector } from './ui/condition-selector.js';
+import { renderQuestionnaire } from './ui/questionnaire.js';
+import { renderRecommendation } from './ui/recommendation.js';
+
+const state = {
+  selectedConditions: [],
+  currentCondition: null,
+  currentSubtype: null,
+  answers: {},
+  results: [],
+  currentStep: 0
+};
+
+// ... (fetch logic for conditions and rules)
+
+function showResult() {
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+  const screen = renderRecommendation({
+    results: state.results,
+    onNewPatient() {
+      // Deep reset to ensure session integrity
+      state.selectedConditions = [];
+      state.answers = {};
+      state.results = [];
+      state.currentStep = 0;
+      state.currentCondition = null;
+      state.currentSubtype = null;
+      window.location.hash = '#select';
+    }
+  });
+  app.appendChild(screen);
+  injectSignature(app); // Branded credit
+}
+
+function injectSignature(container) {
+  const footer = document.createElement('footer');
+  footer.className = 'app-signature';
+  footer.innerHTML = `
+    <span class="signature-text">Designed & Developed by</span>
+    <span class="signature-credit">RSC, MD</span>
+    <p style="font-size: 0.75rem; color: #94a3b8; margin-top: 8px;">
+      Board-Certified Cardiac Electrophysiologist
+    </p>
+  `;
+  container.appendChild(footer);
+}
