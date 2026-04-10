@@ -1,21 +1,208 @@
 {
   "id": "afib-flutter",
-  "name": "AFib/Flutter",
-  "rules": {
-    "discharge_eligible": {
-      "all": [
-        { "field": "current_hr", "lt": 110, "severity": "strict", "reason": "Resting HR must be < 110 bpm" },
-        { "field": "cha2ds2_vasc_assessed", "equals": true, "severity": "strict", "reason": "CHA2DS2-VASc documentation mandatory" },
-        { "field": "on_anticoagulation", "equals": true, "severity": "strict", "reason": "Anticoagulation required for stroke prevention" },
-        { "or": [{ "field": "obesity_addressed", "equals": "addressed" }, { "field": "obesity_addressed", "equals": "not_obese" }], "reason": "Class 1: Lifestyle modification must be initiated" }
-      ]
-    },
-    "followup_interval": {
-      "rules": [
-        { "if": { "field": "ablation_months_ago", "lt": 3 }, "months": 3 },
-        { "if": { "field": "current_hr", "gte": 100 }, "weeks": 4 },
-        { "default": 6 }
-      ]
+  "name": "AFib / Flutter",
+  "subtypes": [
+    {
+      "id": "afib-flutter",
+      "name": "Atrial Fibrillation / Flutter",
+      "description": "AF or atrial flutter management",
+      "sections": [
+        {
+          "id": "rhythm",
+          "title": "Rhythm & Rate Control",
+          "questions": [
+            {
+              "id": "afib_type",
+              "label": "AF classification",
+              "type": "select",
+              "options": [
+                { "value": "paroxysmal", "label": "Paroxysmal" },
+                { "value": "persistent", "label": "Persistent" },
+                { "value": "longstanding_persistent", "label": "Long-standing persistent" },
+                { "value": "permanent", "label": "Permanent" },
+                { "value": "flutter", "label": "Atrial flutter" }
+              ]
+            },
+            {
+              "id": "rate_controlled",
+              "label": "Rate controlled (resting HR < 110)?",
+              "type": "boolean"
+            },
+            {
+              "id": "current_hr",
+              "label": "Resting heart rate (bpm)",
+              "type": "number",
+              "min": 30,
+              "max": 200
+            },
+            {
+              "id": "on_rhythm_control",
+              "label": "On rhythm control strategy?",
+              "type": "boolean"
+            },
+            {
+              "id": "rhythm_strategy",
+              "label": "Rhythm control type",
+              "type": "select",
+              "options": [
+                { "value": "antiarrhythmic", "label": "Antiarrhythmic drug" },
+                { "value": "post_ablation", "label": "Post-catheter ablation" },
+                { "value": "post_cardioversion", "label": "Post-cardioversion" }
+              ],
+              "condition": { "field": "on_rhythm_control", "equals": true }
+            },
+            {
+              "id": "ablation_months_ago",
+              "label": "Months since ablation",
+              "type": "number",
+              "min": 0,
+              "max": 120,
+              "condition": { "field": "rhythm_strategy", "equals": "post_ablation" }
+            }
+          ]
+        },
+        {
+          "id": "anticoag",
+          "title": "Anticoagulation & Stroke Risk",
+          "questions": [
+            {
+              "id": "cha2ds2_vasc_assessed",
+              "label": "CHA₂DS₂-VASc score documented?",
+              "type": "boolean"
+            },
+            {
+              "id": "on_anticoagulation",
+              "label": "On anticoagulation?",
+              "type": "boolean"
+            },
+            {
+              "id": "anticoag_type",
+              "label": "Anticoagulant",
+              "type": "select",
+              "options": [
+                { "value": "doac", "label": "DOAC (apixaban, rivaroxaban, etc.)" },
+                { "value": "warfarin", "label": "Warfarin" },
+                { "value": "none", "label": "None (low risk or contraindicated)" }
+              ],
+              "condition": { "field": "on_anticoagulation", "equals": true }
+            },
+            {
+              "id": "anticoag_stable",
+              "label": "Anticoagulation stable (adherent, INR in range if warfarin)?",
+              "type": "boolean",
+              "condition": { "field": "on_anticoagulation", "equals": true }
+            },
+            {
+              "id": "age",
+              "label": "Age (years)",
+              "type": "number",
+              "min": 18,
+              "max": 110
+            },
+            {
+              "id": "has_chf",
+              "label": "History of CHF?",
+              "type": "boolean"
+            },
+            {
+              "id": "has_hypertension",
+              "label": "Hypertension?",
+              "type": "boolean"
+            },
+            {
+              "id": "has_diabetes",
+              "label": "Diabetes mellitus?",
+              "type": "boolean"
+            },
+            {
+              "id": "has_stroke_tia",
+              "label": "Prior stroke/TIA/thromboembolism?",
+              "type": "boolean"
+            },
+            {
+              "id": "has_vascular",
+              "label": "Vascular disease (prior MI, PAD, aortic plaque)?",
+              "type": "boolean"
+            },
+            {
+              "id": "sex_female",
+              "label": "Female sex?",
+              "type": "boolean"
+            }
+          ]
+        },
+        {
+          "id": "symptoms_comorbid",
+          "title": "Symptoms & Comorbidities",
+          "questions": [
+            {
+              "id": "symptomatic",
+              "label": "Symptomatic from AF (palpitations, dyspnea, fatigue)?",
+              "type": "boolean"
+            },
+            {
+              "id": "ef_current",
+              "label": "LVEF (%)",
+              "type": "number",
+              "min": 10,
+              "max": 80
+            },
+            {
+              "id": "obesity_addressed",
+              "label": "Obesity / lifestyle modification",
+              "type": "select",
+              "options": [
+                { "value": "not_obese", "label": "Not obese" },
+                { "value": "addressed", "label": "Obese — lifestyle counseling initiated" },
+                { "value": "not_addressed", "label": "Obese — not yet addressed" }
+              ]
+            },
+            {
+              "id": "osa_screened",
+              "label": "Screened/treated for obstructive sleep apnea?",
+              "type": "boolean"
+            }
+          ]
+        }
+      ],
+      "rules": {
+        "discharge_eligible": {
+          "all": [
+            { "field": "rate_controlled", "equals": true, "reason": "Rate controlled (HR < 110)" },
+            { "field": "cha2ds2_vasc_assessed", "equals": true, "reason": "CHA₂DS₂-VASc documented" },
+            { "field": "on_anticoagulation", "equals": true, "reason": "On anticoagulation" },
+            { "field": "anticoag_stable", "equals": true, "reason": "Anticoagulation stable" },
+            { "field": "symptomatic", "equals": false, "reason": "Asymptomatic on current regimen" },
+            { "field": "ef_current", "gte": 50, "reason": "Preserved LVEF" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "rate_controlled", "equals": false, "reason": "Rate not controlled" },
+            { "field": "on_anticoagulation", "equals": false, "reason": "Not on anticoagulation — stroke risk not addressed" },
+            { "field": "ef_current", "lt": 40, "reason": "Reduced LVEF — possible tachycardia-mediated cardiomyopathy" },
+            { "field": "symptomatic", "equals": true, "reason": "Symptomatic despite treatment" },
+            { "field": "on_rhythm_control", "equals": true, "reason": "On rhythm control — needs monitoring" }
+          ]
+        },
+        "followup_interval": {
+          "rules": [
+            { "if": { "field": "rhythm_strategy", "equals": "post_ablation" }, "months": 3 },
+            { "if": { "field": "current_hr", "gte": 100 }, "months": 1 },
+            { "if": { "field": "on_rhythm_control", "equals": true }, "months": 3 },
+            { "if": { "field": "ef_current", "lt": 40 }, "months": 3 },
+            { "default": 12 }
+          ]
+        },
+        "pcp_precautions": [
+          { "text": "Ensure anticoagulation adherence. Do NOT stop anticoagulation without cardiology input." },
+          { "condition": { "field": "anticoag_type", "equals": "warfarin" }, "text": "Warfarin — regular INR monitoring required. Target INR per cardiology." },
+          { "condition": { "field": "anticoag_type", "equals": "doac" }, "text": "DOAC — monitor renal function annually. Dose-adjust for CrCl changes." },
+          { "text": "Lifestyle modification: weight loss if obese (reduces AF burden), OSA screening and treatment, alcohol moderation, exercise." },
+          { "text": "Return to cardiology for uncontrolled rate (HR > 110 at rest), new symptoms (palpitations, dyspnea, presyncope), or stroke/TIA." },
+          { "text": "Annual echocardiogram to monitor LV function." }
+        ]
+      }
     }
-  }
+  ]
 }

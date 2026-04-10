@@ -5,22 +5,178 @@
     {
       "id": "hfref",
       "name": "HFrEF (EF ≤ 40%)",
+      "description": "Heart failure with reduced ejection fraction",
+      "sections": [
+        {
+          "id": "severity",
+          "title": "Severity & Functional Status",
+          "questions": [
+            {
+              "id": "ef_current",
+              "label": "Current LVEF (%)",
+              "type": "number",
+              "min": 5,
+              "max": 80
+            },
+            {
+              "id": "nyha_class",
+              "label": "NYHA functional class",
+              "type": "select",
+              "options": [
+                { "value": "I", "label": "Class I — No limitation" },
+                { "value": "II", "label": "Class II — Slight limitation" },
+                { "value": "III", "label": "Class III — Marked limitation" },
+                { "value": "IV", "label": "Class IV — Symptoms at rest" }
+              ]
+            },
+            {
+              "id": "ef_improved",
+              "label": "EF has recovered to ≥ 40%?",
+              "type": "boolean"
+            }
+          ]
+        },
+        {
+          "id": "stability",
+          "title": "Clinical Stability",
+          "questions": [
+            {
+              "id": "stable_diuretics",
+              "label": "Stable on oral diuretics ≥ 24 hours?",
+              "type": "boolean"
+            },
+            {
+              "id": "hospitalization_recent",
+              "label": "Hospitalized for HF in last 12 months?",
+              "type": "boolean"
+            },
+            {
+              "id": "months_since_hosp",
+              "label": "Months since last HF hospitalization",
+              "type": "number",
+              "min": 0,
+              "max": 120,
+              "condition": { "field": "hospitalization_recent", "equals": true }
+            },
+            {
+              "id": "volume_status",
+              "label": "Volume status at current visit",
+              "type": "select",
+              "options": [
+                { "value": "euvolemic", "label": "Euvolemic" },
+                { "value": "mild_overload", "label": "Mild volume overload" },
+                { "value": "significant_overload", "label": "Significant congestion" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "gdmt",
+          "title": "Guideline-Directed Medical Therapy",
+          "questions": [
+            {
+              "id": "on_raasi",
+              "label": "RAASi status (ACEi/ARB/ARNI)",
+              "type": "select",
+              "options": [
+                { "value": "arni_target", "label": "ARNI at target dose" },
+                { "value": "arni_uptitrating", "label": "ARNI — uptitrating" },
+                { "value": "acei_arb_target", "label": "ACEi/ARB at target dose" },
+                { "value": "acei_arb_uptitrating", "label": "ACEi/ARB — uptitrating" },
+                { "value": "contraindicated", "label": "Contraindicated / not tolerated" },
+                { "value": "not_started", "label": "Not started" }
+              ]
+            },
+            {
+              "id": "on_bb",
+              "label": "Beta-blocker status",
+              "type": "select",
+              "options": [
+                { "value": "target_dose", "label": "At target dose" },
+                { "value": "uptitrating", "label": "Uptitrating" },
+                { "value": "contraindicated", "label": "Contraindicated / not tolerated" },
+                { "value": "not_started", "label": "Not started" }
+              ]
+            },
+            {
+              "id": "on_mra",
+              "label": "On MRA (spironolactone/eplerenone)?",
+              "type": "boolean"
+            },
+            {
+              "id": "on_sglt2i",
+              "label": "On SGLT2 inhibitor?",
+              "type": "boolean"
+            },
+            {
+              "id": "gdmt_optimized",
+              "label": "All four pillars of GDMT optimized or at max tolerated dose?",
+              "type": "boolean"
+            }
+          ]
+        },
+        {
+          "id": "devices",
+          "title": "Devices & Advanced Therapies",
+          "questions": [
+            {
+              "id": "has_icd",
+              "label": "ICD or CRT-D in place?",
+              "type": "boolean"
+            },
+            {
+              "id": "icd_indicated",
+              "label": "ICD indicated but not yet placed?",
+              "type": "boolean",
+              "condition": { "field": "has_icd", "equals": false }
+            },
+            {
+              "id": "cardiac_rehab",
+              "label": "Cardiac rehabilitation completed or enrolled?",
+              "type": "boolean"
+            }
+          ]
+        }
+      ],
       "rules": {
         "discharge_eligible": {
           "all": [
-            { "field": "stable_diuretics", "equals": true, "severity": "strict", "reason": "Must be stable on oral diuretics for ≥ 24h" },
-            { "field": "on_sglt2i", "equals": true, "severity": "strict", "reason": "SGLT2i initiation is a 2024 Class 1 mandate" },
-            { "field": "on_mra", "equals": true, "severity": "strict", "reason": "MRA is a mandatory GDMT pillar" },
-            { "or": [{ "field": "on_raasi", "in": ["arni_target", "acei_arb_target"] }, { "field": "on_raasi", "equals": "contraindicated" }], "reason": "RAASi optimized or contraindicated" }
+            { "field": "ef_improved", "equals": true, "reason": "EF recovered to ≥ 40%" },
+            { "field": "nyha_class", "in": ["I", "II"], "reason": "NYHA Class I–II" },
+            { "field": "gdmt_optimized", "equals": true, "reason": "Four-pillar GDMT optimized" },
+            { "field": "stable_diuretics", "equals": true, "reason": "Stable on oral diuretics" },
+            { "field": "hospitalization_recent", "equals": false, "reason": "No HF hospitalization in last 12 months" },
+            { "field": "volume_status", "equals": "euvolemic", "reason": "Euvolemic at visit" }
+          ]
+        },
+        "closer_followup": {
+          "any": [
+            { "field": "ef_current", "lt": 30, "reason": "LVEF < 30% — severely reduced" },
+            { "field": "nyha_class", "in": ["III", "IV"], "reason": "NYHA Class III–IV symptoms" },
+            { "field": "volume_status", "in": ["mild_overload", "significant_overload"], "reason": "Volume overload present" },
+            { "field": "hospitalization_recent", "equals": true, "reason": "Recent HF hospitalization" },
+            { "field": "on_sglt2i", "equals": false, "reason": "Not on SGLT2i — Class 1 recommendation" }
           ]
         },
         "followup_interval": {
           "rules": [
-            { "if": { "field": "hospitalization_recent", "equals": true, "and": { "field": "months_since_hosp", "lt": 1 } }, "days": 7, "reason": "7-day safety check for recent hospitalization" },
-            { "if": { "or": [{ "field": "on_raasi", "in": ["arni_uptitrating", "acei_arb_uptitrating"] }, { "field": "on_bb", "equals": "uptitrating" }] }, "weeks": 4 },
-            { "default": 6 }
+            { "if": { "field": "hospitalization_recent", "equals": true }, "months": 1 },
+            { "if": { "field": "on_bb", "equals": "uptitrating" }, "months": 1 },
+            { "if": { "field": "on_raasi", "in": ["arni_uptitrating", "acei_arb_uptitrating"] }, "months": 1 },
+            { "if": { "field": "ef_current", "lt": 30 }, "months": 3 },
+            { "if": { "field": "nyha_class", "in": ["III", "IV"] }, "months": 3 },
+            { "default": 12 }
           ]
-        }
+        },
+        "pcp_precautions": [
+          { "text": "Daily weights — contact cardiology for weight gain > 3 lbs in 24 hours or > 5 lbs in 1 week." },
+          { "text": "Sodium restriction < 2g/day. Fluid restriction if hyponatremic." },
+          { "text": "Do NOT discontinue GDMT (ARNI/ACEi/ARB, beta-blocker, MRA, SGLT2i) without cardiology input." },
+          { "condition": { "field": "ef_improved", "equals": true }, "text": "EF has recovered — GDMT must be continued indefinitely. Stopping medications risks EF decline." },
+          { "text": "Return to cardiology for worsening dyspnea, orthopnea, weight gain, syncope, or ICD shocks." },
+          { "text": "Annual echocardiogram to monitor EF. Annual influenza and COVID vaccination." },
+          { "condition": { "field": "has_icd", "equals": true }, "text": "ICD/CRT-D in place — needs device clinic follow-up every 6–12 months." }
+        ]
       }
     }
   ]
