@@ -4,36 +4,25 @@
   margin: 0;
   padding: 0;
 }
-
 :root {
-  --color-bg: #f8f9fb;
-  --color-surface: #ffffff;
-  --color-text: #1a2332;
-  --color-text-secondary: #5f6d7e;
-  --color-text-light: #8d9aab;
-  --color-border: #e8ecf1;
-  --color-primary: #3b6de0;
-  --color-primary-light: #eef3ff;
-  --color-primary-hover: #2d5bc7;
-  --color-green: #10b981;
-  --color-green-bg: #ecfdf5;
-  --color-green-border: #a7f3d0;
-  --color-amber: #f59e0b;
-  --color-amber-bg: #fffbeb;
-  --color-amber-border: #fde68a;
-  --color-red: #ef4444;
-  --color-red-bg: #fef2f2;
-  --color-red-border: #fecaca;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
-  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --transition: 0.2s ease;
-  --max-width: 640px;
+  --primary-blue: #004a99;
+  --clinical-bg: #f8fafc;
+}
+
+body { background-color: var(--clinical-bg); }
+
+.app-signature {
+  margin-top: 3rem;
+  padding: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  text-align: center;
+}
+
+.signature-credit {
+  display: block;
+  font-weight: 700;
+  color: var(--primary-blue);
+  font-size: 1.1rem;
 }
 
 html {
@@ -282,36 +271,4 @@ body {
   font-weight: 700;
   color: #004a99;
   font-size: 1.1rem;
-}
-
-:root {
-  --primary-blue: #004a99;
-  --clinical-bg: #f8fafc;
-}
-
-body { background-color: var(--clinical-bg); }
-
-.app-signature {
-  margin-top: 3rem;
-  padding: 1.5rem;
-  border-top: 1px solid #e2e8f0;
-  text-align: center;
-}
-
-.signature-credit {
-  display: block;
-  font-weight: 700;
-  color: var(--primary-blue);
-  font-size: 1.1rem;
-}
-
-.guideline-badge {
-  background: #eef3ff;
-  color: var(--primary-blue);
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  display: inline-block;
-  margin-bottom: 1rem;
 }
